@@ -3,11 +3,6 @@
 This is a community version and currently in progress
 
 Please report bugs and keep on track with our announcement!
-> `Advanced discord OwO selfbot` is currently in maintenance mode. Future updates focus on bug fixes and improvements rather than new features. Thank you for trusting and being with us throughout the 2-year journey.
->
-> If you have any question/suggestion, feel free to submit your idea to us.
-> 
-> Please report if you have any issue/bug/error while using, I will try my best to help with responsibility.
 
 > `Advanced discord OwO selfbot` is currently in maintenance mode. Future updates focus on bug fixes and improvements rather than new features. Thank you for trusting and being with us throughout the 2-year journey.
 >
@@ -21,7 +16,7 @@ Please report bugs and keep on track with our announcement!
 ```
 
 > [!TIP]
-> **Check out this discussion: https://github.com/Kyou-Izumi/advanced-discord-owo-tool-farm/discussions/45**
+> **Check out this discussion: https://github.com/Kyou-Izumi/discord-owo-selfbot/discussions/45**
 
 ## Requirement
 __Node.js Version:__ v16.6.0 and above
@@ -58,14 +53,10 @@ apt install git
 
 Download and extract the module or clone/pull it using [Git](https://git-scm.com/downloads):
 ```bash
-git clone https://github.com/Kyou-Izumi/advanced-discord-owo-tool-farm.git
+git clone https://github.com/LongAKolangle/discord-owo-selfbot.git
 ```
 
-<<<<<<< HEAD
 [Open the terminal inside folder](https://www.groovypost.com/howto/open-command-window-terminal-window-specific-folder-windows-mac-linux/) where you downloaded the tool
-=======
-Now [open the terminal inside folder](https://www.groovypost.com/howto/open-command-window-terminal-window-specific-folder-windows-mac-linux/) where you downloaded the selfbot 
->>>>>>> 610ff3df90e0359fb3e8a9050877638cf1eeb75d
 ```bash
 cd discord-owo-selfbot
 ```
@@ -75,28 +66,8 @@ and run the following command:
 npm install
 ```
 This will install all the requirements (libraries) for the tool to run correctly.
-## Usage
-For running the tool, please use the following command (inside tool folder)
-```bash
-npm start
-```
-If you see the following warning 
 
-![Imgur](https://i.imgur.com/jSTfrOr.png)
-
-Congratulation, you have installed our `discord owo tool farm` successfully.
-
-Type "Y", enter and enjoy your time! (The tool will exit if you press enter only)
-
-## Account Login
-
-We support 2 ways to login: via **token** and **QR Code**
-
-![Imgur](https://i.imgur.com/UwU9Z9B.png)
-
-### Via token: 
-
-#### __- Step 1: Get your discord account token__
+## Get token
 
 Method 1: Follow [this instruction](https://pcstrike.com/how-to-get-discord-token/) to get your account token.
 
@@ -124,35 +95,81 @@ console.log('%cWorked!', 'font-size: 50px');
 console.log(`%cYou now have your token in the clipboard!`, 'font-size: 16px');
 ```
 
-#### __- Step 2: Simply paste your token into the terminal, this will take a while__
+## Usage
+
+### Normal usage (Interactive Command Line User Interfaces)
+
+For running the tool, please use the following command (inside tool folder)
+
+```bash
+npm start
+```
+
+If you see the following warning 
+
+![Imgur](https://i.imgur.com/jSTfrOr.png)
+
+Congratulation, you have installed our `advanced discord owo tool farm` successfully.
+
+Type "Y", enter and enjoy your time! (The tool will exit if you press enter only)
+
+#### Account Login
+
+We support 2 ways to login: via **token** and **QR Code**
+
+![Imgur](https://i.imgur.com/UwU9Z9B.png)
+
+##### Via token: 
+
+__- Step 1: Get your discord account token__
+
+See [How to get your discord token](#get-token)
+
+__- Step 2: Simply paste your token into the terminal, this will take a while__
 
 ![Imgur](https://i.imgur.com/v7LlsSg.png)
 
-### Via QR Code
+##### Via QR Code
 Simply scan the QR Code on the screen by your discord mobile and wait patiently...
 
 ![Imgur](https://i.imgur.com/xm8F3Cy.png)
 
+### CLI usage (Command Line Interface)
+
+```bash
+node . [options]
+npm start -- -- [options]
+
+# Example
+npm start -- -- -g // generate autorun.json
+npm start -- -- -i myfile.json // Trigger auto import and run with given myfile.json
+```
+
+#### CLI Options:
+```sh
+    -g, --generate [filename]
+    -i, --import <filename>
+    -d, --debug
+```
+
 If success, a list of joined servers will be shown up.
 
 __A full tutorial on how to use the tool will be uploaded to Youtube soon!__
-
-### Via Password
-
-No further information from library (Unsupported)
-
-__Note:__ We do __NOT__ support code auth via Phone Number/Email, __ONLY__ Backup / Google Authenticator Code
 
 ## Caution
 Recently, there have been reports of hacked accounts and lost currency associated with the use of certain tools. For your safety, it is advised to avoid any kind of obfuscated or suspicious code. Prioritize security and exercise caution when using external code or tools. Stay informed, trust reliable sources, and adopt good security practices to protect your accounts and data.
 
 ![Imgur](https://i.imgur.com/dWFr5uv.png)
 ## Achievements
+✔ CLI support
+
 ✔ Attempt to solve captcha by using 3rd party captcha-api website
+
+✔ Solve captcha from OwO website (1 week usage for every 10 stars, further info in discord server)
 
 ✔ DMs selfbot account to send captcha answer to OwO (user -> selfbot -> OwO)
 
-✔ Use Slash Command
+✔ ~~Use Slash Command~~ [removed due to instability]
 
 ✔ Selfbot Commands
 
@@ -182,11 +199,7 @@ Recently, there have been reports of hacked accounts and lost currency associate
 
 ✔ Automatic gamble (blackjack/slot/coinflip)
 
-~~ ✔ Automatic send/receive, upgrade trait huntbot ~~
-
-
-✔ HCaptcha solving (1 week usage for every 10 stars, further info in discord server)
-
+✔ ~~Automatic send/receive, upgrade trait huntbot~~ [removed]
 
 ✔ Automatic check for update
 
@@ -261,7 +274,7 @@ keepmeside
 
 gillcoder
 
-uwuv3
+awesomebadname
 
 ## License
 
