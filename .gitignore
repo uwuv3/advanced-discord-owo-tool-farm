@@ -8,4 +8,3 @@ src/security
 src/feats/B2KI.ts
 
 dest/src/feats/B2KI.js
-dest/src/security/decrypt.js
