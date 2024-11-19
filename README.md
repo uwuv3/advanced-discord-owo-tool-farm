@@ -4,16 +4,24 @@ This is a community version and currently in progress
 
 Please report bugs and keep on track with our announcement!
 
-    Since I have to prepare for my final grade/university entrance exams,
-    Future updates focus on bug fixes and improvements rather than new features.
-    Thank you for trusting and being with us throughout the 2-year journey.
-    If you have any question/suggestion, feel free to submit your idea to us.
-    Please report if you have any issue/bugs/error while using, I will try my best to help with my responsibility.
+> `Advanced discord OwO selfbot` is currently in maintenance mode. Future updates focus on bug fixes and improvements rather than new features. Thank you for trusting and being with us throughout the 2-year journey.
+>
+> If you have any question/suggestion, feel free to submit your idea to us.
+> 
+> Please report if you have any issue/bug/error while using, I will try my best to help with responsibility.
+
+
+```
+>>> Captcha from owobot.com/captcha is now supported
+```
+
+> [!TIP]
+> **Check out this discussion: https://github.com/Kyou-Izumi/advanced-discord-owo-tool-farm/discussions/45**
 
 ## Requirement
-__Node.js Version:__ v14.0.0 and above
+__Node.js Version:__ v16.6.0 and above
 
-For laptop and PC: Windows 8/8.1/10 or higher, Linux and MacOS
+For laptop and PC: Windows 10/11 or higher, Linux and MacOS
 
 For Android: Download and install [Termux](https://f-droid.org/en/packages/com.termux/) 
 
@@ -21,17 +29,17 @@ For IOS: Not yet (please tell us if you know any supporting method)
 
 __Note:__ Termux from Google Play Store is unsupported.
 
-[BETA] If you are using Termux and notification via playing music, please download __termux-api__ package to be installed for the `termux-media-player` command to work
-
-This can be done by running command:
-```bash
-pkg install termux-api
-```
-
 ## Installation
+
+### Node.js installation
+
+##### Windows/Linux/MacOS:
+
 Please make sure that you have installed [Node.js LTS](https://nodejs.org/en/download) on your devices.
 
 ![Imgur](https://i.imgur.com/swvzF0k.png)
+
+##### Termux:
 
 On Termux, run the following commands:
 ```bash
@@ -41,19 +49,25 @@ apt install nodejs-lts
 apt install git
 ```
 
+### Tool installation
+
 Download and extract the module or clone/pull it using [Git](https://git-scm.com/downloads):
 ```bash
-git clone https://github.com/LongAKolangle/discord-owo-selfbot.git
+git clone https://github.com/Kyou-Izumi/advanced-discord-owo-tool-farm.git
 ```
 
-Now [open the terminal inside folder](https://www.groovypost.com/howto/open-command-window-terminal-window-specific-folder-windows-mac-linux/) where you downloaded the selfbot and run the following command:
+[Open the terminal inside folder](https://www.groovypost.com/howto/open-command-window-terminal-window-specific-folder-windows-mac-linux/) where you downloaded the tool
+```bash
+cd discord-owo-selfbot
+```
+and run the following command:
 
 ```bash
 npm install
 ```
-This will install all the requirements (libraries) for the selfbot to run correctly.
+This will install all the requirements (libraries) for the tool to run correctly.
 ## Usage
-For running selfbot, please use the following command (inside selfbot folder)
+For running the tool, please use the following command (inside tool folder)
 ```bash
 npm start
 ```
@@ -61,13 +75,13 @@ If you see the following warning
 
 ![Imgur](https://i.imgur.com/jSTfrOr.png)
 
-Congratulation, you have installed our selfbot successfully.
+Congratulation, you have installed our `discord owo tool farm` successfully.
 
-Type "Y", enter and enjoy your time! (The selfbot will exit if you press enter only)
+Type "Y", enter and enjoy your time! (The tool will exit if you press enter only)
 
 ## Account Login
 
-We support 3 ways to login: via token, via QR Code, and via Password
+We support 2 ways to login: via **token** and **QR Code**
 
 ![Imgur](https://i.imgur.com/UwU9Z9B.png)
 
@@ -80,20 +94,28 @@ Method 1: Follow [this instruction](https://pcstrike.com/how-to-get-discord-toke
 Method 2: Press __Ctrl + Shift + I__ and paste the following function.
 
 ```javascript
-(webpackChunkdiscord_app.push([
-    [""],
-    {},
-    (e) => {
-        m = [];
-        for (let c in e.c) m.push(e.c[c]);
-    },
-]),
-m)
-    .find((m) => m?.exports?.default?.getToken !== void 0)
-    .exports.default.getToken();
+window.webpackChunkdiscord_app.push([
+  [Math.random()],
+  {},
+  req => {
+    if (!req.c) return;
+    for (const m of Object.keys(req.c)
+      .map(x => req.c[x].exports)
+      .filter(x => x)) {
+      if (m.default && m.default.getToken !== undefined) {
+        return copy(m.default.getToken());
+      }
+      if (m.getToken !== undefined) {
+        return copy(m.getToken());
+      }
+    }
+  },
+]);
+console.log('%cWorked!', 'font-size: 50px');
+console.log(`%cYou now have your token in the clipboard!`, 'font-size: 16px');
 ```
 
-#### __- Step 2: Simply paste your token into the toolfarm, this will take a while__
+#### __- Step 2: Simply paste your token into the terminal, this will take a while__
 
 ![Imgur](https://i.imgur.com/v7LlsSg.png)
 
@@ -104,13 +126,14 @@ Simply scan the QR Code on the screen by your discord mobile and wait patiently.
 
 If success, a list of joined servers will be shown up.
 
-__A full tutorial on how to use the selfbot will be uploaded to Youtube soon!__
+__A full tutorial on how to use the tool will be uploaded to Youtube soon!__
 
 ### Via Password
 
-Simply submit your Email/Phone Number, Password, MFA Code (Backup/3rd party app Code)
+No further information from library (Unsupported)
 
 __Note:__ We do __NOT__ support code auth via Phone Number/Email, __ONLY__ Backup / Google Authenticator Code
+
 ## Caution
 Recently, there have been reports of hacked accounts and lost currency associated with the use of certain tools. For your safety, it is advised to avoid any kind of obfuscated or suspicious code. Prioritize security and exercise caution when using external code or tools. Stay informed, trust reliable sources, and adopt good security practices to protect your accounts and data.
 
@@ -118,7 +141,7 @@ Recently, there have been reports of hacked accounts and lost currency associate
 ## Achievements
 ✔ Attempt to solve captcha by using 3rd party captcha-api website
 
-✔ Solve captcha by DMs selfbot account
+✔ DMs selfbot account to send captcha answer to OwO (user -> selfbot -> OwO)
 
 ✔ Use Slash Command
 
@@ -130,7 +153,7 @@ Recently, there have been reports of hacked accounts and lost currency associate
 
 ✔ Prompt sent command with time
 
-✔ Level up with random quotes locally
+✔ Level up with random stored quotes
 
 ✔ Unhandled Rejection Handler
 
@@ -150,7 +173,11 @@ Recently, there have been reports of hacked accounts and lost currency associate
 
 ✔ Automatic gamble (blackjack/slot/coinflip)
 
-✔ Automatic send/receive, upgrade trait huntbot
+~~ ✔ Automatic send/receive, upgrade trait huntbot ~~
+
+
+✔ HCaptcha solving (1 week usage for every 10 stars, further info in discord server)
+
 
 ✔ Automatic check for update
 
@@ -163,8 +190,6 @@ __-- Coming soon list --__
 ⬜ Selfbot captcha solving API (No longer 3rd party)
 
 ⬜ Huntbot captcha solving API (No longer 3rd party)
-
-⬜ HCaptcha solving (in testing)
 
 ⬜ Automatic vote OwO on top.gg (in testing)
 
@@ -180,7 +205,7 @@ Your stars serve as fuel for our spirits, igniting our passion and dedication to
 
 Your stars inspire us to keep pushing boundaries, overcome challenges, and bring about meaningful change.
 
-[![Star History Chart](https://api.star-history.com/svg?repos=LongAKolangle/discord-owo-selfbot&type=Date)](https://star-history.com/#LongAKolangle/discord-owo-selfbot&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=Kyou-Izumi/discord-owo-selfbot&type=Date)](https://star-history.com/#Kyou-Izumi/discord-owo-selfbot&Date)
 
 
 ## Contributing
@@ -188,7 +213,7 @@ Your stars inspire us to keep pushing boundaries, overcome challenges, and bring
 Pull requests are welcome. For major changes, please open an issue first
 to discuss what you would like to change.
 
-As we are looking for translators to make the selfbot and instruction multi-language supports, please open a discussion with translator labels if you'd like to join in!
+As we are looking for translators to make the tool and instruction multi-language supports, please open a discussion with translator labels if you'd like to join in!
 
 Please make sure to update tests as appropriate.
 
@@ -202,7 +227,7 @@ __Patreon:__ [Click here!](https://patreon.com/DiscordOwOSelfbot)
 
 __Email:__ ntt.eternity2k6@gmail.com
 
-__Join our discord server:__ [Join now](https://discord.gg/Yr92g5Zx3e)
+__Join our discord server:__ [Tool Support Server](https://discord.gg/Yr92g5Zx3e)
 
     Hello there, my name is Eternityy, and I wanted to take a moment to thank you for using our tool.
 
@@ -227,6 +252,8 @@ keepmeside
 
 gillcoder
 
+uwuv3
+
 ## License
 
 ✨ Licensed under the MIT license.
@@ -236,5 +263,3 @@ gillcoder
 💖 Made by Vietnamese with love
 
 💫 We are BKI members (Baka Island - Đảo Ngố Tàu) 
-
-__Tag:__ Discord selfbot, OwO selfbot, Tool Farm OwO, Advanced OwO Selfbot, Selfbot Farm OwO, Discord OwO bot selfbot, Discord OwO selfbot, etc.

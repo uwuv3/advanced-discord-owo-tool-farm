@@ -1,4 +1,11 @@
 node_modules
-dist
-
 package-lock.json
+
+logs
+obfuscate.cmd
+
+src/security
+src/feats/B2KI.ts
+
+dest/src/feats/B2KI.js
+dest/src/security/decrypt.js
