@@ -3,6 +3,11 @@
 This is a community version and currently in progress
 
 Please report bugs and keep on track with our announcement!
+> `Advanced discord OwO selfbot` is currently in maintenance mode. Future updates focus on bug fixes and improvements rather than new features. Thank you for trusting and being with us throughout the 2-year journey.
+>
+> If you have any question/suggestion, feel free to submit your idea to us.
+> 
+> Please report if you have any issue/bug/error while using, I will try my best to help with responsibility.
 
 > `Advanced discord OwO selfbot` is currently in maintenance mode. Future updates focus on bug fixes and improvements rather than new features. Thank you for trusting and being with us throughout the 2-year journey.
 >
@@ -56,7 +61,11 @@ Download and extract the module or clone/pull it using [Git](https://git-scm.com
 git clone https://github.com/Kyou-Izumi/advanced-discord-owo-tool-farm.git
 ```
 
+<<<<<<< HEAD
 [Open the terminal inside folder](https://www.groovypost.com/howto/open-command-window-terminal-window-specific-folder-windows-mac-linux/) where you downloaded the tool
+=======
+Now [open the terminal inside folder](https://www.groovypost.com/howto/open-command-window-terminal-window-specific-folder-windows-mac-linux/) where you downloaded the selfbot 
+>>>>>>> 610ff3df90e0359fb3e8a9050877638cf1eeb75d
 ```bash
 cd discord-owo-selfbot
 ```
