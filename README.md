@@ -67,7 +67,7 @@ npm install
 ```
 This will install all the requirements (libraries) for the tool to run correctly.
 
-## Get token
+### Get token
 
 Method 1: Follow [this instruction](https://pcstrike.com/how-to-get-discord-token/) to get your account token.
 
