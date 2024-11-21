@@ -39,7 +39,7 @@ program
                 return logger.error(`File ${filename} already exists and is not empty!\nPlease remove it or specify another filename.`)
             }
 
-            fs.writeFileSync(filename, JSON.stringify({}, null, 4))
+            fs.writeFileSync(filename, JSON.stringify(defaultConfig, null, 4))
             logger.info(`File generated: ${path.resolve(filename)}`)
             return;
         }
