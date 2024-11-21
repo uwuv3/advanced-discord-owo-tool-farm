@@ -1,5 +1,6 @@
 import { Command } from "commander";
 import { logger } from "./src/utils/logger.js";
+import { defaultConfig } from "./src/typings/typings.js";
 import fs from "node:fs";
 import path from "node:path";
 import { BaseAgent } from "./src/structures/BaseAgent.js";
@@ -31,7 +32,7 @@ program
         if (fs.existsSync(filename) && fs.statSync(filename).size > 0) {
             return logger.error(`File ${filename} already exists and is not empty!\nPlease remove it or specify another filename.`);
         }
-        fs.writeFileSync(filename, JSON.stringify({}, null, 4));
+        fs.writeFileSync(filename, JSON.stringify(defaultConfig, null, 4));
         logger.info(`File generated: ${path.resolve(filename)}`);
         return;
     }
