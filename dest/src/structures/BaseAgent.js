@@ -7,6 +7,7 @@ import { owoHandler } from "../handler/owoHandler.js";
 import { loadCommands } from "../feats/command.js";
 import { commandHandler } from "../handler/commandHandler.js";
 import { dmsHandler } from "../handler/dmsHandler.js";
+import { loadSweeper } from "../feats/sweeper.js";
 export class BaseAgent extends Client {
     config;
     cache;
@@ -21,6 +22,7 @@ export class BaseAgent extends Client {
     ]);
     commands = new Collection();
     captchaDetected = false;
+    paused = false;
     coutChannel = ranInt(17, 51);
     coutSleep = ranInt(38, 92);
     lastTime = 0;
@@ -32,6 +34,7 @@ export class BaseAgent extends Client {
     gem1;
     gem2;
     gem3;
+    RETAINED_USERS_IDS = [this.owoID];
     constructor({ options } = {}) {
         super(options);
     }
@@ -39,6 +42,7 @@ export class BaseAgent extends Client {
         this.on("ready", async () => {
             logger.info("Logged in as " + this.user?.displayName);
             loadPresence(this);
+            loadSweeper(this);
             if (this.config.prefix)
                 this.commands = await loadCommands();
             this.activeChannel = this.channels.cache.get(this.config.channelID[0]);
@@ -63,7 +67,7 @@ export class BaseAgent extends Client {
         });
     };
     send = async (message, { withPrefix = true, channel = this.activeChannel, delay = ranInt(120, 3700), } = {}) => {
-        if (this.captchaDetected)
+        if (this.captchaDetected || this.paused)
             return;
         if (delay)
             await this.sleep(delay);
@@ -80,6 +84,8 @@ export class BaseAgent extends Client {
         this.reloadTime = new Date().setUTCHours(0, ranInt(0, 30), ranInt(0, 59), ranInt(0, 1000));
         [this.gem1, this.gem2, this.gem3] = Array(3).fill(undefined);
         this.config = this.cache;
+        if (force)
+            return true;
     };
     aDaily = async () => {
         await this.send("daily");
@@ -98,7 +104,7 @@ export class BaseAgent extends Client {
         await this.sleep(this.sleepTime);
         const nextShift = ranInt(38, 92);
         this.coutSleep += nextShift;
-        this.sleepTime = mapInt(this.coutSleep, 38, 92, 150_000, 1_000_000);
+        this.sleepTime = mapInt(nextShift, 38, 92, 150_000, 1_000_000);
     };
     aOther = async () => {
         const command = this.config.autoOther[ranInt(0, this.config.autoOther.length)];
@@ -127,8 +133,6 @@ export class BaseAgent extends Client {
         }
     };
     aGem = async (uGem1, uGem2, uGem3) => {
-        if (this.captchaDetected)
-            return;
         await this.send("inv");
         const filter = (msg) => msg.author.id == this.owoID &&
             msg.content.includes(msg.guild?.members.me?.displayName) &&
@@ -164,7 +168,7 @@ export class BaseAgent extends Client {
         });
     };
     main = async () => {
-        if (this.captchaDetected || Date.now() - this.lastTime < 15_000)
+        if (this.captchaDetected || this.paused || Date.now() - this.lastTime < 15_000)
             return;
         const command = this.owoCommands[ranInt(0, this.owoCommands.length)];
         if (!command) {
@@ -225,7 +229,7 @@ export class BaseAgent extends Client {
             },
         ];
         for (const command of commands) {
-            if (this.captchaDetected)
+            if (this.captchaDetected || this.paused)
                 return;
             if (command.condition())
                 await command.action();

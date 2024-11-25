@@ -14,7 +14,7 @@ export const commandHandler = async (agent) => {
         if (!command)
             return;
         try {
-            command.execute(message, args);
+            command.execute(agent, message, ...args);
         }
         catch (error) {
             logger.error("Error executing command: " + command);

@@ -11,7 +11,7 @@ export const loadPresence = async (client: Client) => {
     const rpc = new RichPresence(client)
         .setApplicationId("367827983903490050")
         .setType("PLAYING")
-        .setName("Mirai")
+        .setName("Mirai Kuriyama")
         .setDetails("The day the emperor returns!")
         .setStartTimestamp(client.readyTimestamp ?? Date.now())
         .setAssetsLargeImage(externalLinks[0].external_asset_path)

@@ -1,4 +1,5 @@
 import { ClientOptions, DMChannel, Message, TextChannel } from "discord.js-selfbot-v13";
+import { BaseAgent } from "../structures/BaseAgent.js";
 
 export type agentOptions = {
     options?: ClientOptions;
@@ -12,13 +13,13 @@ export type sendOptions = {
 
 export type CommandCondition = {
     condition: () => boolean;
-    action: () => Promise<void>;
+    action: () => Promise<any>;
 };
 export type Commands = {
     name: string;
     description: string;
-    usage: string;
-    execute: (message: Message, args: string[]) => any;
+    // usage: string;
+    execute: (agent: BaseAgent, message: Message, ...args: string[]) => any;
 };
 
 export const defaultConfig: Configuration = {

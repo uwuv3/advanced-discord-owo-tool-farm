@@ -19,6 +19,7 @@ import { owoHandler } from "../handler/owoHandler.js";
 import { loadCommands } from "../feats/command.js";
 import { commandHandler } from "../handler/commandHandler.js";
 import { dmsHandler } from "../handler/dmsHandler.js";
+import { loadSweeper } from "../feats/sweeper.js";
 
 export class BaseAgent extends Client {
 	public config!: Configuration;
@@ -36,6 +37,7 @@ export class BaseAgent extends Client {
 	]);
 	public commands: Collection<string, Commands> = new Collection();
 	captchaDetected = false;
+	paused = false;
 
 	private coutChannel = ranInt(17, 51);
 	private coutSleep = ranInt(38, 92);
@@ -52,6 +54,8 @@ export class BaseAgent extends Client {
 	private gem2?: number[];
 	private gem3?: number[];
 
+	RETAINED_USERS_IDS = [this.owoID]
+
 	constructor({ options }: agentOptions = {}) {
 		super(options);
 	}
@@ -59,6 +63,7 @@ export class BaseAgent extends Client {
 		this.on("ready", async () => {
 			logger.info("Logged in as " + this.user?.displayName);
 			loadPresence(this);
+			loadSweeper(this);
 			if (this.config.prefix) this.commands = await loadCommands();
 			this.activeChannel = this.channels.cache.get(
 				this.config.channelID[0]
@@ -92,7 +97,7 @@ export class BaseAgent extends Client {
 			delay = ranInt(120, 3700),
 		}: sendOptions = {}
 	) => {
-		if (this.captchaDetected) return;
+		if (this.captchaDetected || this.paused) return;
 
 		if (delay) await this.sleep(delay);
 		if (withPrefix) message = this.prefix + message;
@@ -111,6 +116,7 @@ export class BaseAgent extends Client {
 		);
 		[this.gem1, this.gem2, this.gem3] = Array<undefined>(3).fill(undefined);
 		this.config = this.cache;
+		if(force) return true
 	};
 
 	public aDaily = async () => {
@@ -141,7 +147,7 @@ export class BaseAgent extends Client {
 		
 		const nextShift = ranInt(38, 92);
 		this.coutSleep += nextShift;
-		this.sleepTime = mapInt(this.coutSleep, 38, 92, 150_000, 1_000_000);
+		this.sleepTime = mapInt(nextShift, 38, 92, 150_000, 1_000_000);
 	};
 
 	public aOther = async () => {
@@ -182,8 +188,6 @@ export class BaseAgent extends Client {
 	};
 
 	public aGem = async (uGem1: boolean, uGem2: boolean, uGem3: boolean) => {
-		if (this.captchaDetected) return;
-
 		await this.send("inv");
 		const filter = (msg: Message<boolean>) =>
 			msg.author.id == this.owoID &&
@@ -225,7 +229,7 @@ export class BaseAgent extends Client {
 	};
 
 	public main = async (): Promise<any> => {
-		if (this.captchaDetected || Date.now() - this.lastTime < 15_000) return;
+		if (this.captchaDetected || this.paused || Date.now() - this.lastTime < 15_000) return;
 
 		const command = this.owoCommands[ranInt(0, this.owoCommands.length)];
 		if (!command) {
@@ -297,7 +301,7 @@ export class BaseAgent extends Client {
 		];
 
 		for (const command of commands) {
-			if (this.captchaDetected) return;
+			if (this.captchaDetected || this.paused) return;
 			if (command.condition()) await command.action();
 			const delay = ranInt(15000, 22000) / commands.length;
 			await this.sleep(ranInt(delay, delay + 1200));

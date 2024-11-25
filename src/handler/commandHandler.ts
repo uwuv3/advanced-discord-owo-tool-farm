@@ -17,7 +17,7 @@ export const commandHandler = async (agent: BaseAgent) => {
         const command = agent.commands.get(args.shift()?.toLowerCase() ?? "");
         if (!command) return;
         try {
-            command.execute(message, args);
+            command.execute(agent, message, ...args);
         } catch (error) {
             logger.error("Error executing command: " + command);
             logger.error(error as Error);
