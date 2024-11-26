@@ -53,12 +53,12 @@ apt install git
 
 Download and extract the module or clone/pull it using [Git](https://git-scm.com/downloads):
 ```bash
-git clone https://github.com/LongAKolangle/advanced-discord-owo-tool-farm.git
+git clone https://github.com/Kyou-Izumi/advanced-discord-owo-tool-farm.git
 ```
 
 [Open the terminal inside folder](https://www.groovypost.com/howto/open-command-window-terminal-window-specific-folder-windows-mac-linux/) where you downloaded the tool
 ```bash
-cd discord-owo-selfbot
+cd advanced-discord-owo-tool-farm
 ```
 and run the following command:
 
