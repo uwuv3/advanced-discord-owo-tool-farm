@@ -45,7 +45,7 @@ export class Notifier {
                 .setURL(this.message.url)
                 .setDescription("**Status**: " + this.status ? "✅ **SOLVED**" : "⚠ ⚠ **UNSOLVED** ⚠ ⚠")
                 .addFields([
-                { name: "Captcha type: ", value: this.attachmentUrl ? `[Image Captcha](${this.message.url})` : "[Link Captcha](https://owobot.com/captcha)", inline: true }
+                { name: "Captcha type: ", value: this.attachmentUrl ? `[Image Captcha](${this.message.url})` : "[Link Captcha](https://owobot.com/captcha)" }
             ])
                 .setColor("#00ddff")
                 .setFooter({ text: "Copyright B2KI ADOS © since 2022", iconURL: this.message.guild?.iconURL({ format: "png" }) ?? "https://i.imgur.com/EqChQK1.png" })
@@ -53,11 +53,11 @@ export class Notifier {
             if (this.attachmentUrl)
                 embed.setImage(this.attachmentUrl);
             if (!this.status)
-                embed.addFields({ name: "Please solve the captcha before: ", value: this.unixTime, inline: true });
+                embed.addFields({ name: "Please solve the captcha before: ", value: this.unixTime });
             webhook.send({
                 avatarURL: this.message.client.user?.avatarURL({ dynamic: true }) ?? "https://i.imgur.com/9wrvM38.png",
                 username: "Captcha The Detective",
-                content: this.content,
+                content: (this.config.adminID ? `<@${this.config.adminID}>` : "" + this.content),
                 embeds: embed ? [embed] : embed
             });
         }
@@ -76,7 +76,7 @@ export class Notifier {
             if (!admin.dmChannel)
                 await admin.createDM();
             await admin.send({
-                content: this.content + "\n**Status**: " + this.status ? "✅ **SOLVED**" : "⚠ ⚠ **UNSOLVED** ⚠ ⚠",
+                content: (this.content + "\n**Status**: " + this.status ? "✅ **SOLVED**" : "⚠ ⚠ **UNSOLVED** ⚠ ⚠"),
                 files: this.attachmentUrl ? [this.attachmentUrl] : []
             });
         }

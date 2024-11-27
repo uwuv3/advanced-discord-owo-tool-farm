@@ -26,31 +26,37 @@ export const owoHandler = async (agent) => {
                 await selfbotNotify(message, agent.config);
                 return logger.info("WAITING FOR THE CAPTCHA TO BE RESOLVED TO RESTART...");
             }
-            const attachmentUrl = message.attachments.first()?.url;
-            if (attachmentUrl) {
-                const res = await solveImage(attachmentUrl, agent.config);
-                const owo = message.client.users.cache.get(agent.owoID);
-                if (!owo)
-                    throw new Error("Failed to Reach OwO DM Channel");
-                const owoDM = await owo.createDM();
-                await agent.send(res, { withPrefix: false, channel: owoDM });
-                const collector = owoDM.createMessageCollector({
-                    filter: (msg) => msg.author.id == agent.owoID && /verified that you are.{1,3}human!/igm.test(msg.content),
-                    max: 1, time: 30_000
-                });
-                collector.once("end", (collection) => {
-                    if (collection.size == 0) {
-                        logger.warn("30s Timed out, No Response For Captcha Answer");
-                        selfbotNotify(message, agent.config, false);
-                    }
-                });
+            try {
+                const attachmentUrl = message.attachments.first()?.url;
+                if (attachmentUrl) {
+                    const res = await solveImage(attachmentUrl, agent.config);
+                    const owo = message.client.users.cache.get(agent.owoID);
+                    if (!owo)
+                        throw new Error("Failed to Reach OwO DM Channel");
+                    const owoDM = await owo.createDM();
+                    await agent.send(res, { withPrefix: false, channel: owoDM });
+                    const collector = owoDM.createMessageCollector({
+                        filter: (msg) => msg.author.id == agent.owoID && /verified that you are.{1,3}human!/igm.test(msg.content),
+                        max: 1, time: 30_000
+                    });
+                    collector.once("end", (collection) => {
+                        if (collection.size == 0)
+                            throw new Error("30s Timed out, No Response For Captcha Answer");
+                    });
+                }
+                else if (/(https?:\/\/[^\s]+)/g.test(message.content)) {
+                    await decryptCaptcha(message, agent.config);
+                }
+                else
+                    throw new Error("No Image/Link Detected in Captcha Message");
+                selfbotNotify(message, agent.config, true);
             }
-            else if (/(https?:\/\/[^\s]+)/g.test(message.content)) {
-                await decryptCaptcha(message, agent.config);
+            catch (error) {
+                logger.warn("Error Solving Captcha: " + error.message);
+                logger.alert("Attempt to solve captcha failed!");
+                logger.info("WAITING FOR THE CAPTCHA TO BE RESOLVED TO RESTART...");
+                selfbotNotify(message, agent.config);
             }
-            else
-                throw new Error("No Image/Link Detected in Captcha Message");
-            selfbotNotify(message, agent.config, true);
         }
         else if (/verified that you are.{1,3}human!/igm.test(message.content)) {
             logger.info(`CAPTCHA HAS BEEN RESOLVED, ${agent.config.autoResume ? "RESTARTING SELFBOT" : "STOPPING SELFBOT"}...`);

@@ -380,7 +380,7 @@ export class ConfigManager {
         }
         if (this.config.wayNotify.includes("webhook"))
             this.config.webhookURL = await this.webhookURL(this.cache?.webhookURL);
-        if (this.config.wayNotify.includes("call") || this.config.wayNotify.includes("dms"))
+        if (["webhook", "dms", "call"].some(w => this.config.wayNotify.includes(w)))
             this.config.adminID = await this.getAdminID(this.cache?.adminID);
         this.config.captchaAPI = await this.captchaAPI(this.cache?.captchaAPI);
         if (this.config.captchaAPI)
