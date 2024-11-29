@@ -16,3 +16,5 @@ const helpCommand: Commands = {
         else message.reply(document)
     }
 }
+
+export default helpCommand;

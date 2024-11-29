@@ -1,4 +1,5 @@
 import { Commands } from "../typings/typings.js";
+import { logger } from "../utils/logger.js";
 
 const pauseCommand: Commands = {
     name: "pause",
@@ -13,6 +14,7 @@ const pauseCommand: Commands = {
         } else {
             agent.captchaDetected = true
             agent.paused = true
+            logger.info("Tool paused (user request)")
             message.reply("Tool is paused!")
         }
     }

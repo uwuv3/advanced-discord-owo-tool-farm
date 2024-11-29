@@ -1,4 +1,3 @@
-import { Message } from "discord.js-selfbot-v13";
 import { Commands } from "../typings/typings.js";
 
 const sendCommand: Commands = {

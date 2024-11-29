@@ -1,11 +1,12 @@
 import { logger } from "../utils/logger.js";
 export const commandHandler = async (agent) => {
     agent.on("messageCreate", async (message) => {
-        if (!agent.config.prefix || message.content.startsWith(agent.config.prefix))
+        if (!agent.config.prefix || !message.content.startsWith(agent.config.prefix))
             return;
         if (message.author.id != agent.config.adminID &&
             message.author.id != message.client.user?.id)
             return;
+        logger.info(message.author.username + " executed a command: " + message.content);
         const args = message.content
             .slice(agent.config.prefix.length)
             .trim()
