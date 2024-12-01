@@ -15,4 +15,4 @@ const helpCommand = {
             message.reply(document);
     }
 };
-export {};
+export default helpCommand;

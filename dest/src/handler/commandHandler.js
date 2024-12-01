@@ -6,7 +6,7 @@ export const commandHandler = async (agent) => {
         if (message.author.id != agent.config.adminID &&
             message.author.id != message.client.user?.id)
             return;
-        logger.info(message.author.username + " executed a command: " + message.content);
+        logger.debug(message.author.username + " executed a command: " + message.content);
         const args = message.content
             .slice(agent.config.prefix.length)
             .trim()

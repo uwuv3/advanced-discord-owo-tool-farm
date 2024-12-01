@@ -1,3 +1,4 @@
+import { logger } from "../utils/logger.js";
 const pauseCommand = {
     name: "pause",
     description: "Pause the Tool",
@@ -10,6 +11,7 @@ const pauseCommand = {
         else {
             agent.captchaDetected = true;
             agent.paused = true;
+            logger.info("Tool paused (user request)");
             message.reply("Tool is paused!");
         }
     }
