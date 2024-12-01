@@ -48,7 +48,7 @@ export class Notifier {
             const embed = new MessageEmbed()
                 .setTitle("Captcha Detected!")
                 .setURL(this.message.url)
-                .setDescription("**Status**: " + this.status ? "✅ **SOLVED**" : "⚠ ⚠ **UNSOLVED** ⚠ ⚠")
+                .setDescription("**Status**: " + (this.status ? "✅ **SOLVED**" : "⚠ ⚠ **UNSOLVED** ⚠ ⚠"))
                 .addFields([
                     { name: "Captcha type: ", value: this.attachmentUrl ? `[Image Captcha](${this.message.url})` : "[Link Captcha](https://owobot.com/captcha)" }
                 ])
@@ -79,7 +79,7 @@ export class Notifier {
         try {
             if (!admin.dmChannel) await admin.createDM()
             await admin.send({
-                content: (this.content + "\n**Status**: " + this.status ? "✅ **SOLVED**" : "⚠ ⚠ **UNSOLVED** ⚠ ⚠"),
+                content: (this.content + "\n**Status**: " + (this.status ? "✅ **SOLVED**" : "⚠ ⚠ **UNSOLVED** ⚠ ⚠")),
                 files: this.attachmentUrl ? [this.attachmentUrl] : []
             })
         } catch (error) {
