@@ -51,7 +51,7 @@ apt install git
 
 ### Tool installation
 
-Download and extract the module or clone/pull it using [Git](https://git-scm.com/downloads):
+[Download and extract the module](https://github.com/Kyou-Izumi/advanced-discord-owo-tool-farm/archive/refs/heads/main.zip) or clone/pull it using [Git](https://git-scm.com/downloads):
 ```bash
 git clone https://github.com/Kyou-Izumi/advanced-discord-owo-tool-farm.git
 ```
