@@ -153,7 +153,7 @@ npm start -- -- -i myfile.json // Trigger auto import and run with given myfile.
 ```
 
 ## Autorun.json example
-```json
+```js
 {
     "username": "", // you can ignore this
     "token": "", // account token
