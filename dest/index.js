@@ -1,8 +1,8 @@
 import { Command } from "commander";
-import { logger } from "./src/utils/logger.js";
-import { defaultConfig } from "./src/typings/typings.js";
 import fs from "node:fs";
 import path from "node:path";
+import { logger } from "./src/utils/logger.js";
+import { defaultConfig } from "./src/typings/typings.js";
 import { BaseAgent } from "./src/structures/BaseAgent.js";
 import { InquirerConfig } from "./src/structures/Inquirer.js";
 const program = new Command();

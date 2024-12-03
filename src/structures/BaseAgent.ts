@@ -241,7 +241,7 @@ export class BaseAgent extends Client {
 		await this.send(command);
 		this.lastTime = Date.now();
 
-		if (command == "hunt" && this.config.autoGem) {
+		if (command.includes("h") && this.config.autoGem) {
 			const filter = (msg: Message<boolean>) =>
 				msg.author.id == this.owoID &&
 				msg.content.includes(msg.guild?.members.me?.displayName!) &&
@@ -260,7 +260,7 @@ export class BaseAgent extends Client {
 		const commands: CommandCondition[] = [
 			{
 				condition: () =>
-					this.config.autoPray &&
+					this.config.autoPray.length > 0 &&
 					Date.now() - this.toutPray >= 360_000,
 				action: this.aPray,
 			},

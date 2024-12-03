@@ -394,6 +394,7 @@ export class ConfigManager {
         this.config.autoOther = await this.otherAction(Array.isArray(this.cache?.autoOther) ? this.cache?.autoOther : undefined);
         this.config.autoQuote = await this.quoteAction(Array.isArray(this.cache?.autoQuote) ? this.cache.autoQuote : undefined);
         this.config.autoPray = await this.prayCurse(this.cache?.autoPray);
+        this.config.autoDaily = await this.trueFalse("Toggle Automatically Claim Daily Reward", this.cache?.autoDaily);
         this.config.autoSell = await this.trueFalse("Toggle Automatically Sell once cash runs out", this.cache?.autoSell);
         this.config.autoSleep = await this.trueFalse("Toggle Automatically pause after times", this.cache?.autoSleep);
         this.config.autoReload = await this.trueFalse("Toggle Automatically reload config daily", this.cache?.autoReload);

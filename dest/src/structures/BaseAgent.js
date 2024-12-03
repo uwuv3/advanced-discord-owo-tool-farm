@@ -179,7 +179,7 @@ export class BaseAgent extends Client {
         }
         await this.send(command);
         this.lastTime = Date.now();
-        if (command == "hunt" && this.config.autoGem) {
+        if (command.includes("h") && this.config.autoGem) {
             const filter = (msg) => msg.author.id == this.owoID &&
                 msg.content.includes(msg.guild?.members.me?.displayName) &&
                 /hunt is empowered by| spent 5 .+ and caught a/.test(msg.content);
@@ -195,7 +195,7 @@ export class BaseAgent extends Client {
         }
         const commands = [
             {
-                condition: () => this.config.autoPray &&
+                condition: () => this.config.autoPray.length > 0 &&
                     Date.now() - this.toutPray >= 360_000,
                 action: this.aPray,
             },

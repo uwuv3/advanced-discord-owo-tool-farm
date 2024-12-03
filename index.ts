@@ -1,9 +1,10 @@
 import { Command } from "commander"
+import fs from "node:fs"
+import path from "node:path"
+
 import { logger } from "./src/utils/logger.js"
 import { Configuration, defaultConfig } from "./src/typings/typings.js"
 
-import fs from "node:fs"
-import path from "node:path"
 import { BaseAgent } from "./src/structures/BaseAgent.js"
 import { InquirerConfig } from "./src/structures/Inquirer.js"
 

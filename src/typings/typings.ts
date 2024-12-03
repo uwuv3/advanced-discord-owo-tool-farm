@@ -28,18 +28,19 @@ export const defaultConfig: Configuration = {
     guildID: "",
     channelID: [""],
     wayNotify: ["webhook"],
+    musicPath: "",
     webhookURL: "",
-    adminID: "",
     prefix: "!",
+    adminID: "",
     captchaAPI: "2captcha",
     apiKey: "",
     autoPray: ["pray"],
     autoGem: 1,
     autoCrate: true,
     autoFCrate: true,
-    autoSell: true,
     autoQuote: ["owo", "quote"],
     autoDaily: true,
+    autoSell: true,
     autoOther: ["run", "pup", "piku"],
     autoSleep: true,
     autoReload: true,
@@ -63,8 +64,8 @@ export interface Configuration {
     autoCrate?: boolean
     autoFCrate?: boolean
     autoQuote: Array<"owo" | "quote">
-    autoSell: boolean
     autoDaily: boolean
+    autoSell: boolean
     autoOther: Array<"run" | "pup" | "piku">
     autoSleep: boolean
     autoReload: boolean

@@ -18,7 +18,7 @@ Please report bugs and keep on track with our announcement!
 > [!TIP]
 > **Check out this discussion: https://github.com/Kyou-Izumi/discord-owo-selfbot/discussions/45**
 
-## Requirement
+##  Requirement
 __Node.js Version:__ v22.11.0 and above
 
 For laptop and PC: Windows 10/11 or higher, Linux and MacOS
@@ -152,7 +152,50 @@ npm start -- -- -i myfile.json // Trigger auto import and run with given myfile.
     -d, --debug
 ```
 
-If success, a list of joined servers will be shown up.
+## Autorun.json example
+```json
+{
+    "username": "", // you can ignore this
+    "token": "", // account token
+    "guildID": "", // Server ID (you can ignore this also)
+    "channelID": [ // Array of Farming channel IDs
+        "channel ID 1",
+        "channel ID 2",
+        "...", // must delete all empty if unused
+    ],
+    "wayNotify": [ // possible choices are: ["webhook", "dms", "call", "music"]
+        "webhook"
+    ],
+    "musicPath": "", // skip this if you don't use music in wayNotify
+    "webhookURL": "", // Webhook URL for sending notification
+    "prefix": "!", // Prefix for tool commands
+    "adminID": "", // User ID will be mentioned in notification and can execute tool commands
+    "captchaAPI": "2captcha", // captcha solving service (only 2captcha supportted atm)
+    "apiKey": "", // captcha solving service api key
+    "autoPray": [ // you can add other user ID (ex: "pray/curse 00x0000")
+        "pray"
+    ],
+    "autoGem": 1, // 0: disabled, 1: fabled -> common, -1: common -> fabled
+    "autoCrate": true, // Auto use looting box (set to false for disabled)
+    "autoFCrate": true,// Auto use fabled looting box
+    "autoQuote": [
+        "owo", // only send owo/uwu
+        "quote" // spam random quotes
+    ],
+    "autoDaily": true, // Auto claim daily reward
+    "autoSell": true, // Auto sell zoo when cash runs out
+    "autoOther": [ // other commands like run/pup/piku, modify as your usage
+        "run",
+        "pup",
+        "piku"
+    ],
+    "autoSleep": true, // Create pause gaps (5-20 mins each) while running
+    "autoReload": true, // Auto reload config on new day
+    "autoResume": true // Auto resume tool after solved captcha
+}
+```
+
+## Tutorial
 
 __A full tutorial on how to use the tool will be uploaded to Youtube soon!__
 
@@ -272,20 +315,20 @@ __SPECIAL THANKS TO:__
 
 [Aiko-chan-ai](https://github.com/aiko-chan-ai)
 
-iamz4ri
+[iamz4ri](https://github.com/iamz4ri)
 
 keepmeside
 
 gillcoder
 
-[awesomebadname](https://github.com/uwuv3)
+[uwuv3](https://github.com/uwuv3)
 
 ## License
 
 ✨ Licensed under the MIT license.
 
-⛱️ Copyright © EternityVN x aiko-chan-ai 2024
-
 💖 Made by Vietnamese with love
+
+⛱️ Copyright © EternityVN x aiko-chan-ai 2021-2024
 
 💫 We are BKI members (Baka Island - Đảo Ngố Tàu) 
