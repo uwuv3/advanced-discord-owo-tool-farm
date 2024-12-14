@@ -1,4 +1,7 @@
-import decryptCaptcha from "../security/decrypt.js";
+let find = false;
+let decryptCaptcha = async (...args) => {
+    console.log(`No Captcha solver provided`);
+};
 const solveCommand = {
     name: "solve",
     description: "Retry solving HCaptcha",
@@ -6,6 +9,16 @@ const solveCommand = {
         if (!agent.captchaDetected)
             return message.reply("No captcha detected");
         try {
+            if (!find) {
+                try {
+                    //@ts-ignore
+                    decryptCaptcha = await import("../security/decrypt.js");
+                    find = true;
+                    console.log(decryptCaptcha.toString());
+                }
+                catch (error) {
+                }
+            }
             await decryptCaptcha(message, agent.config);
             message.reply("✅ Captcha solved!");
         }

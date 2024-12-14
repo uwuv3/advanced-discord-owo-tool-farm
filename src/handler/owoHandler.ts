@@ -4,7 +4,10 @@ import { BaseAgent } from "../structures/BaseAgent.js";
 import { logger } from "../utils/logger.js";
 import { consoleNotify, selfbotNotify } from "../feats/notify.js";
 import { solveImage } from "../feats/captcha.js";
-import decryptCaptcha from "../security/decrypt.js";
+let find = false;
+let decryptCaptcha = async (...args:any)=>{
+    console.log(`No Captcha solver provided`)
+}
 
 export const owoHandler = async (agent: BaseAgent) => {
     agent.on("messageCreate", async (message) => {
@@ -60,6 +63,18 @@ export const owoHandler = async (agent: BaseAgent) => {
                         && message.components[0].components[0].label?.includes("Verify")
                     )
                 ) {
+                    if(!find) {
+                        try {
+                            //@ts-ignore
+                            decryptCaptcha = await import("../security/decrypt.js");
+                            find = true
+            
+                            console.log(decryptCaptcha.toString())
+                            
+                        } catch (error) {
+                            
+                        }
+                    }
                     await decryptCaptcha(message, agent.config)
                 } else throw new Error("No Image/Link Detected in Captcha Message")
 

@@ -1,6 +1,11 @@
 import chalk from "chalk"
 import { createLogger, format, transports, Logger, LogEntry } from "winston"
-
+type CustomLogInfo = {
+    level: string;
+    message: string | unknown;
+    timestamp?: string; 
+    stack?: string; 
+};
 class CustomLogger {
     public logger: Logger
     private static instance: CustomLogger
@@ -18,7 +23,7 @@ class CustomLogger {
             debug: chalk.blackBright("[DEBUG]"),
         };
 
-        const consoleFormat = printf(({ level, message, timestamp, stack }: LogEntry & { stack?: string }) => {
+        const consoleFormat = printf(({ level, message, timestamp, stack }: CustomLogInfo | LogEntry & { stack?: string }) => {
             const formattedTimestamp = chalk.bgYellow.black(timestamp)
             const levelLabel = levelFormats[level] || chalk.magenta(`[${level.toUpperCase()}]`)
             return stack

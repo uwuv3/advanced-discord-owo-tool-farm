@@ -1,7 +1,10 @@
 import { logger } from "../utils/logger.js";
 import { consoleNotify, selfbotNotify } from "../feats/notify.js";
 import { solveImage } from "../feats/captcha.js";
-import decryptCaptcha from "../security/decrypt.js";
+let find = false;
+let decryptCaptcha = async (...args) => {
+    console.log(`No Captcha solver provided`);
+};
 export const owoHandler = async (agent) => {
     agent.on("messageCreate", async (message) => {
         if (message.author.id != agent.owoID)
@@ -49,6 +52,16 @@ export const owoHandler = async (agent) => {
                     || (message.components.length > 0 && message.components[0].components[0]
                         && message.components[0].components[0].type == "BUTTON" && message.components[0].components[0].style == "LINK"
                         && message.components[0].components[0].label?.includes("Verify"))) {
+                    if (!find) {
+                        try {
+                            //@ts-ignore
+                            decryptCaptcha = await import("../security/decrypt.js");
+                            find = true;
+                            console.log(decryptCaptcha.toString());
+                        }
+                        catch (error) {
+                        }
+                    }
                     await decryptCaptcha(message, agent.config);
                 }
                 else
