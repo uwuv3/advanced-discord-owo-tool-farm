@@ -10,4 +10,4 @@ export const consoleNotify = (commandsCount, textsCount, readyTimestamp) => {
     logger.log("data", chalk.cyanBright("SELFBOT HAS BEEN TERMINATED!"));
     logger.log("data", "");
 };
-export const selfbotNotify = Notifier.getInstance;
+export const selfbotNotify = (message, config, solved = false) => new Notifier(message, config, solved).notify();

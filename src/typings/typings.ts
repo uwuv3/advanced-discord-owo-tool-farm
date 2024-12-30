@@ -11,10 +11,16 @@ export type sendOptions = {
     delay?: number;
 };
 
+export type NotifierCondition = {
+    condition: Configuration["wayNotify"][number]
+    callback: () => any
+}
+
 export type CommandCondition = {
     condition: () => boolean;
     action: () => Promise<any>;
 };
+
 export type Commands = {
     name: string;
     description: string;

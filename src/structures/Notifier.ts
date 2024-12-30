@@ -1,5 +1,5 @@
 import { Message, MessageEmbed, WebhookClient } from "discord.js-selfbot-v13"
-import { Configuration } from "../typings/typings.js"
+import { Configuration, NotifierCondition } from "../typings/typings.js"
 import { spawn } from "child_process"
 import { musicCommand } from "../utils/utils.js"
 import { logger } from "../utils/logger.js"
@@ -13,8 +13,6 @@ export class Notifier {
     private content: string
     private unixTime: string
 
-    private static instance: Notifier
-
     constructor(message: Message, config: Configuration, solved = false) {
         this.unixTime = `<t:${Math.floor(message.createdTimestamp / 1000 + 600)}:f>`
         this.message = message
@@ -22,13 +20,6 @@ export class Notifier {
         this.status = solved
         this.attachmentUrl = message.attachments.first()?.url
         this.content = `${config.adminID ? `<@${config.adminID}>` : ""} Captcha Found in Channel: ${message.channel.toString()}`
-    }
-
-    public static getInstance = (message: Message, config: Configuration, solved = false) => {
-        if (!Notifier.instance) {
-            Notifier.instance = new Notifier(message, config, solved)
-        }
-        return Notifier.instance.notify()
     }
 
     public playSound = async () => {
@@ -101,11 +92,30 @@ export class Notifier {
         }
     }
 
-    public notify = async () => {
-        logger.debug("Enabled notifications: " + this.config.wayNotify.join(", "))
-        if (this.config.wayNotify.includes("music")) await this.playSound()
-        if (this.config.wayNotify.includes("webhook")) await this.sendWebhook()
-        if (this.config.wayNotify.includes("dms")) await this.sendDM()
-        if (this.config.wayNotify.includes("call")) await this.callDM()
+    public notify = () => {
+        const wayNotify = this.config.wayNotify
+        logger.debug("Enabled notifications: " + wayNotify.join(", "))
+
+        const notifier: NotifierCondition[] = [
+            {
+                condition: "music",
+                callback: this.playSound
+            },
+            {
+                condition: "webhook",
+                callback: this.sendWebhook
+            },
+            {
+                condition: "dms",
+                callback: this.sendDM
+            },
+            {
+                condition: "call",
+                callback: this.callDM
+            },
+        ]
+
+        for(const { condition, callback } of notifier) 
+            if(wayNotify.includes(condition)) callback()
     }
 }

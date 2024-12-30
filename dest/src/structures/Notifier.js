@@ -9,7 +9,6 @@ export class Notifier {
     attachmentUrl;
     content;
     unixTime;
-    static instance;
     constructor(message, config, solved = false) {
         this.unixTime = `<t:${Math.floor(message.createdTimestamp / 1000 + 600)}:f>`;
         this.message = message;
@@ -18,12 +17,6 @@ export class Notifier {
         this.attachmentUrl = message.attachments.first()?.url;
         this.content = `${config.adminID ? `<@${config.adminID}>` : ""} Captcha Found in Channel: ${message.channel.toString()}`;
     }
-    static getInstance = (message, config, solved = false) => {
-        if (!Notifier.instance) {
-            Notifier.instance = new Notifier(message, config, solved);
-        }
-        return Notifier.instance.notify();
-    };
     playSound = async () => {
         if (!this.config.musicPath)
             return logger.debug("Music path not found, skipping sound notification");
@@ -99,15 +92,29 @@ export class Notifier {
             logger.error(error);
         }
     };
-    notify = async () => {
-        logger.debug("Enabled notifications: " + this.config.wayNotify.join(", "));
-        if (this.config.wayNotify.includes("music"))
-            await this.playSound();
-        if (this.config.wayNotify.includes("webhook"))
-            await this.sendWebhook();
-        if (this.config.wayNotify.includes("dms"))
-            await this.sendDM();
-        if (this.config.wayNotify.includes("call"))
-            await this.callDM();
+    notify = () => {
+        const wayNotify = this.config.wayNotify;
+        logger.debug("Enabled notifications: " + wayNotify.join(", "));
+        const notifier = [
+            {
+                condition: "music",
+                callback: this.playSound
+            },
+            {
+                condition: "webhook",
+                callback: this.sendWebhook
+            },
+            {
+                condition: "dms",
+                callback: this.sendDM
+            },
+            {
+                condition: "call",
+                callback: this.callDM
+            },
+        ];
+        for (const { condition, callback } of notifier)
+            if (wayNotify.includes(condition))
+                callback();
     };
 }
