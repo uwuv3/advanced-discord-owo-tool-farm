@@ -59,9 +59,8 @@ export const owoHandler = async (agent: BaseAgent) => {
                         && message.components[0].components[0].type == "BUTTON" && message.components[0].components[0].style == "LINK"
                         && message.components[0].components[0].label?.includes("Verify")
                     )
-                ) {
-                    await decryptCaptcha(message, agent.config)
-                } else throw new Error("No Image/Link Detected in Captcha Message")
+                ) await decryptCaptcha(message, agent.config)
+                else throw new Error("No Image/Link Detected in Captcha Message")
 
                 selfbotNotify(message, agent.config, true)
             } catch (error: Error | any) {

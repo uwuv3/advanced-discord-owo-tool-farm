@@ -92,7 +92,7 @@ export class Notifier {
         }
     }
 
-    public notify = () => {
+    public notify = async () => {
         const wayNotify = this.config.wayNotify
         logger.debug("Enabled notifications: " + wayNotify.join(", "))
 
@@ -116,6 +116,6 @@ export class Notifier {
         ]
 
         for(const { condition, callback } of notifier) 
-            if(wayNotify.includes(condition)) callback()
+            if(wayNotify.includes(condition)) await callback()
     }
 }

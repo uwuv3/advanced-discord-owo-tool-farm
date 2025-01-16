@@ -28,6 +28,12 @@ export type Commands = {
     execute: (agent: BaseAgent, message: Message, ...args: string[]) => any;
 };
 
+export type QuestInfo = {
+    type: "hunt" | "battle" | "owo"
+    task: string
+    reward: string
+}
+
 export const defaultConfig: Configuration = {
     username: "",
     token: "",

@@ -1,6 +1,7 @@
 import {
 	Client,
 	Collection,
+	CollectorFilter,
 	Message,
 	TextChannel,
 } from "discord.js-selfbot-v13";
@@ -32,8 +33,8 @@ export class BaseAgent extends Client {
 	owoID = "408785106942164992";
 	prefix = "owo ";
 	private owoCommands = shuffleArray([
-		...Array<string>(7).fill("hunt"),
-		...Array<string>(3).fill("battle"),
+		...Array<string>(6).fill("hunt"),
+		...Array<string>(4).fill("battle"),
 	]);
 	public commands: Collection<string, Commands> = new Collection();
 	captchaDetected = false;
@@ -101,7 +102,7 @@ export class BaseAgent extends Client {
 
 		if (delay) await this.sleep(delay);
 		if (withPrefix) message = this.prefix + message;
-		await channel.send(message);
+		await channel.send(message).catch(logger.error);
 		if (withPrefix) logger.sent(message);
 		withPrefix ? this.totalCommands++ : this.totalTexts++;
 	};
@@ -116,7 +117,7 @@ export class BaseAgent extends Client {
 		);
 		[this.gem1, this.gem2, this.gem3] = Array<undefined>(3).fill(undefined);
 		this.config = this.cache;
-		if(force) return true
+		if (force) return true
 	};
 
 	public aDaily = async () => {
@@ -144,7 +145,7 @@ export class BaseAgent extends Client {
 	public aSleep = async () => {
 		logger.info("Pausing for " + timeHandler(0, this.sleepTime, true));
 		await this.sleep(this.sleepTime);
-		
+
 		const nextShift = ranInt(38, 92);
 		this.coutSleep += nextShift;
 		this.sleepTime = mapInt(nextShift, 38, 92, 150_000, 1_000_000);
@@ -187,9 +188,72 @@ export class BaseAgent extends Client {
 		}
 	};
 
+	public aChecklist = async () => {
+		await this.send("checklist");
+		const filter: CollectorFilter<[Message<boolean>]> = (m) =>
+			m.author.id == this.owoID &&
+			m.embeds.length > 0 &&
+			(m.embeds[0].author?.name.includes(m.guild?.members.me?.displayName!) ?? false) &&
+			(m.embeds[0].author?.name.includes("Checklist") ?? false)
+		this.activeChannel.createMessageCollector({
+			filter,
+			max: 1,
+			time: 15_000
+		}).once("collect", async (m) => {
+
+		})
+	}
+
+	public aQuest = async () => {
+		await this.send("quest");
+		const filter: CollectorFilter<[Message<boolean>]> = (m) =>
+			m.author.id == this.owoID &&
+			m.embeds.length > 0 &&
+			(
+				m.embeds[0].author?.name.includes(m.guild?.members.me?.displayName!) &&
+				Boolean(m.embeds[0].author?.name.includes("Quest Log")) ||
+				Boolean(m.embeds[0].description?.includes(m.client.user?.id!))
+			)
+		this.activeChannel.createMessageCollector({
+			filter,
+			max: 1,
+			time: 15_000
+		}).once("collect", async (m) => {
+			const description = m.embeds[0].description
+			if(!description) return logger.error("Cannot retrieve Quest Log")
+
+			const raw = description.split("\n").slice(1)
+				.map(r => r.replace(/<:blank:427371936482328596>|`|\*\*/g, "").split("‣"))
+				.flat().filter(r => r.length > 0)
+				.reduce((acc, curr, i) => {
+					if (i % 3 === 0) {
+						acc.push([])
+					}
+					acc[acc.length - 1].push(curr.trim())
+					return acc
+				}, <Array<string[]>>[])
+			const quests = raw.map(q => {
+				return {
+					name: q[0],
+					reward: [...q[1].matchAll(/<:(\w+):\d+>/g)].map(r => r[1]).reduce((acc, curr) => ({
+						...acc,
+						[curr]: (acc[curr] || 0) + 1
+					}), <Record<string, number>>{}),
+					progress: ((input) => {
+						const [current, total] = [...input.matchAll(/\[(\d+)\/(\d+)\]/g)].map(r => [r[1], r[2]]).flat()
+						return {
+							current: parseInt(current),
+							total: parseInt(total)
+						}
+					})(q[2])
+				}
+			})
+		})
+	}
+
 	public aGem = async (uGem1: boolean, uGem2: boolean, uGem3: boolean) => {
 		await this.send("inv");
-		const filter = (msg: Message<boolean>) =>
+		const filter: CollectorFilter<[Message<boolean>]> = (msg) =>
 			msg.author.id == this.owoID &&
 			msg.content.includes(msg.guild?.members.me?.displayName!) &&
 			msg.content.includes("Inventory");
@@ -216,11 +280,11 @@ export class BaseAgent extends Client {
 					return;
 				}
 
-				const ugem1 = (uGem1 && this.gem1.length > 0) ? this.config.autoGem > 0 
+				const ugem1 = (uGem1 && this.gem1.length > 0) ? this.config.autoGem > 0
 					? Math.max(...this.gem1) : Math.min(...this.gem1) : undefined;
-				const ugem2 = (uGem2 && this.gem2.length > 0) ? this.config.autoGem > 0 
+				const ugem2 = (uGem2 && this.gem2.length > 0) ? this.config.autoGem > 0
 					? Math.max(...this.gem2) : Math.min(...this.gem2) : undefined;
-				const ugem3 = (uGem3 && this.gem3.length > 0) ? this.config.autoGem > 0 
+				const ugem3 = (uGem3 && this.gem3.length > 0) ? this.config.autoGem > 0
 					? Math.max(...this.gem3) : Math.min(...this.gem3) : undefined;
 
 				if (!ugem1 && !ugem2 && !ugem3) return;

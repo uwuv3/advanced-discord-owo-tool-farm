@@ -17,8 +17,8 @@ export class BaseAgent extends Client {
     owoID = "408785106942164992";
     prefix = "owo ";
     owoCommands = shuffleArray([
-        ...Array(7).fill("hunt"),
-        ...Array(3).fill("battle"),
+        ...Array(6).fill("hunt"),
+        ...Array(4).fill("battle"),
     ]);
     commands = new Collection();
     captchaDetected = false;
@@ -73,7 +73,7 @@ export class BaseAgent extends Client {
             await this.sleep(delay);
         if (withPrefix)
             message = this.prefix + message;
-        await channel.send(message);
+        await channel.send(message).catch(logger.error);
         if (withPrefix)
             logger.sent(message);
         withPrefix ? this.totalCommands++ : this.totalTexts++;
@@ -131,6 +131,62 @@ export class BaseAgent extends Client {
                 });
                 break;
         }
+    };
+    aChecklist = async () => {
+        await this.send("checklist");
+        const filter = (m) => m.author.id == this.owoID &&
+            m.embeds.length > 0 &&
+            (m.embeds[0].author?.name.includes(m.guild?.members.me?.displayName) ?? false) &&
+            (m.embeds[0].author?.name.includes("Checklist") ?? false);
+        this.activeChannel.createMessageCollector({
+            filter,
+            max: 1,
+            time: 15_000
+        }).once("collect", async (m) => {
+        });
+    };
+    aQuest = async () => {
+        await this.send("quest");
+        const filter = (m) => m.author.id == this.owoID &&
+            m.embeds.length > 0 &&
+            (m.embeds[0].author?.name.includes(m.guild?.members.me?.displayName) &&
+                Boolean(m.embeds[0].author?.name.includes("Quest Log")) ||
+                Boolean(m.embeds[0].description?.includes(m.client.user?.id)));
+        this.activeChannel.createMessageCollector({
+            filter,
+            max: 1,
+            time: 15_000
+        }).once("collect", async (m) => {
+            const description = m.embeds[0].description;
+            if (!description)
+                return logger.error("Cannot retrieve Quest Log");
+            const raw = description.split("\n").slice(1)
+                .map(r => r.replace(/<:blank:427371936482328596>|`|\*\*/g, "").split("‣"))
+                .flat().filter(r => r.length > 0)
+                .reduce((acc, curr, i) => {
+                if (i % 3 === 0) {
+                    acc.push([]);
+                }
+                acc[acc.length - 1].push(curr.trim());
+                return acc;
+            }, []);
+            const quests = raw.map(q => {
+                return {
+                    name: q[0],
+                    reward: [...q[1].matchAll(/<:(\w+):\d+>/g)].map(r => r[1]).reduce((acc, curr) => ({
+                        ...acc,
+                        [curr]: (acc[curr] || 0) + 1
+                    }), {}),
+                    progress: ((input) => {
+                        const [current, total] = [...input.matchAll(/\[(\d+)\/(\d+)\]/g)].map(r => [r[1], r[2]]).flat();
+                        return {
+                            current: parseInt(current),
+                            total: parseInt(total)
+                        };
+                    })(q[2])
+                };
+            });
+        });
     };
     aGem = async (uGem1, uGem2, uGem3) => {
         await this.send("inv");

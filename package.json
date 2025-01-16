@@ -1,6 +1,6 @@
 {
   "name": "advanced-discord-owo-tool-farm",
-  "version": "3.1.8",
+  "version": "3.1.9",
   "description": "Community Discord OwO Selfbot made in Vietnam [Copyright © Kyou-Izumi 2024]",
   "main": "dest/index.js",
   "type": "module",
@@ -19,7 +19,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Kyou-Izumi/discord-owo-selfbot.git"
+    "url": "git+https://github.com/Kyou-Izumi/advanced-discord-owo-tool-farm.git"
   },
   "keywords": [
     "discord-owo-selfbot",
@@ -35,9 +35,9 @@
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Kyou-Izumi/discord-owo-selfbot/issues"
+    "url": "https://github.com/Kyou-Izumi/advanced-discord-owo-tool-farm/issues"
   },
-  "homepage": "https://github.com/Kyou-Izumi/discord-owo-selfbot#readme",
+  "homepage": "https://github.com/Kyou-Izumi/advanced-discord-owo-tool-farm#readme",
   "dependencies": {
     "@inquirer/core": "^9.2.1",
     "@inquirer/prompts": "^7.1.0",

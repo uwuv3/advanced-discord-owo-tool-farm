@@ -48,9 +48,8 @@ export const owoHandler = async (agent) => {
                 else if (/(https?:\/\/[^\s]+)/g.test(normalized)
                     || (message.components.length > 0 && message.components[0].components[0]
                         && message.components[0].components[0].type == "BUTTON" && message.components[0].components[0].style == "LINK"
-                        && message.components[0].components[0].label?.includes("Verify"))) {
+                        && message.components[0].components[0].label?.includes("Verify")))
                     await decryptCaptcha(message, agent.config);
-                }
                 else
                     throw new Error("No Image/Link Detected in Captcha Message");
                 selfbotNotify(message, agent.config, true);

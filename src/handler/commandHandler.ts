@@ -11,7 +11,7 @@ export const commandHandler = async (agent: BaseAgent) => {
         )
             return;
 
-        logger.debug(message.author.username + " executed a command: " + message.content);
+        logger.debug(message.author.username + " executed a command: " + message.content);  
 
         const args = message.content
             .slice(agent.config.prefix.length)
