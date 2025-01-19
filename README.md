@@ -202,7 +202,7 @@ __A full tutorial on how to use the tool will be uploaded to Youtube soon!__
 ## Caution
 Recently, there have been reports of hacked accounts and lost currency associated with the use of certain tools. For your safety, it is advised to avoid any kind of obfuscated or suspicious code. Prioritize security and exercise caution when using external code or tools. Stay informed, trust reliable sources, and adopt good security practices to protect your accounts and data.
 
-For more information: [SECURITY.md]("https://github.com/Kyou-Izumi/advanced-discord-owo-tool-farm/tree/main/SECURITY.md")
+For more information: [SECURITY.md](https://github.com/Kyou-Izumi/advanced-discord-owo-tool-farm/tree/main/SECURITY.md)
 
 ![Imgur](https://i.imgur.com/dWFr5uv.png)
 ## Achievements

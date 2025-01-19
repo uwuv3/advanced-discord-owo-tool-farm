@@ -27,9 +27,9 @@ Malicious repositories can:
 ### Known Dangerous Repositories and Tools
 The following is a list of known dangerous repositories/tools you should avoid:
 
-1. [**Mid0aria/owofarmbot_stable**]("https://github.com/Kyou-Izumi/advanced-discord-owo-tool-farm/tree/main/doc/security/Mid0aria.md"): Installing Grabbers to steal user information
-    - Further information: [Here]("https://github.com/Kyou-Izumi/advanced-discord-owo-tool-farm/tree/main/doc/security/Mid0aria.md")
-    - Verified analytical article: [Here]("https://www.reddit.com/r/Discord_selfbots/comments/1hlcmid/owo_farm_bot_is_harmful_and_if_you_use_it_theres/")
+1. [**Mid0aria/owofarmbot_stable**](https://github.com/Kyou-Izumi/advanced-discord-owo-tool-farm/tree/main/doc/security/Mid0aria.md): Installing Grabbers to steal user information
+    - Further information: [Here](https://github.com/Kyou-Izumi/advanced-discord-owo-tool-farm/tree/main/doc/security/Mid0aria.md)
+    - Verified analytical article: [Here](https://www.reddit.com/r/Discord_selfbots/comments/1hlcmid/owo_farm_bot_is_harmful_and_if_you_use_it_theres/)
 
 *(Add more entries as needed.)*
 
