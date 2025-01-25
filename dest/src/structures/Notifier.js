@@ -85,7 +85,13 @@ export class Notifier {
         if (!admin)
             return logger.debug("Admin not found, skipping DM notification");
         try {
-            (await admin.createDM()).ring();
+            const DM = await admin.createDM();
+            await this.message.client.voice.joinChannel(DM, {
+                selfVideo: false,
+                selfDeaf: false,
+                selfMute: true,
+            }).then(connection => setTimeout(() => connection.disconnect(), 60000));
+            await DM.ring();
         }
         catch (error) {
             logger.error("Error calling user");
@@ -115,6 +121,6 @@ export class Notifier {
         ];
         for (const { condition, callback } of notifier)
             if (wayNotify.includes(condition))
-                await callback();
+                callback();
     };
 }

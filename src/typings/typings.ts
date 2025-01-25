@@ -1,11 +1,11 @@
 import { ClientOptions, DMChannel, Message, TextChannel } from "discord.js-selfbot-v13";
 import { BaseAgent } from "../structures/BaseAgent.js";
 
-export type agentOptions = {
+export type AgentOptions = {
     options?: ClientOptions;
 };
 
-export type sendOptions = {
+export type SendOptions = {
     withPrefix?: boolean;
     channel?: TextChannel | DMChannel;
     delay?: number;
@@ -17,22 +17,17 @@ export type NotifierCondition = {
 }
 
 export type CommandCondition = {
-    condition: () => boolean;
-    action: () => Promise<any>;
+    condition: boolean;
+    action: () => any;
 };
 
 export type Commands = {
     name: string;
     description: string;
-    // usage: string;
     execute: (agent: BaseAgent, message: Message, ...args: string[]) => any;
 };
 
-export type QuestInfo = {
-    type: "hunt" | "battle" | "owo"
-    task: string
-    reward: string
-}
+export type QuestTypes =  "xp" | "hunt" | "battle" | "owo" | "action" | "gamble" | "unsupported"
 
 export const defaultConfig: Configuration = {
     username: "",
@@ -52,11 +47,15 @@ export const defaultConfig: Configuration = {
     autoFCrate: true,
     autoQuote: ["owo", "quote"],
     autoDaily: true,
-    autoSell: true,
+    autoQuest: true,
+    autoCookie: true,
+    autoClover: true,
     autoOther: ["run", "pup", "piku"],
+    autoSell: true,
     autoSleep: true,
     autoReload: true,
-    autoResume: true
+    autoResume: true,
+    showRPC: true
 }
 
 export interface Configuration {
@@ -77,11 +76,15 @@ export interface Configuration {
     autoFCrate?: boolean
     autoQuote: Array<"owo" | "quote">
     autoDaily: boolean
+    autoQuest: boolean
+    autoCookie: boolean
+    autoClover: boolean
     autoSell: boolean
     autoOther: Array<"run" | "pup" | "piku">
     autoSleep: boolean
     autoReload: boolean
     autoResume: boolean
+    showRPC: boolean
 }
 // export interface Configuration {
 //     tag: string

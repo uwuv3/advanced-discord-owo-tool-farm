@@ -4,6 +4,8 @@
 
 The purpose of this file is to raise awareness about malicious or dangerous repositories that you should avoid. These repositories may contain harmful code, vulnerabilities, or other malicious content that can compromise your systems or data.
 
+![Imgur](https://i.imgur.com/s6kyW8T.png)
+
 ### Why This Matters
 Malicious repositories can:
 - Contain malware or malicious scripts.
@@ -27,11 +29,9 @@ Malicious repositories can:
 ### Known Dangerous Repositories and Tools
 The following is a list of known dangerous repositories/tools you should avoid:
 
-1. [**Mid0aria/owofarmbot_stable**](https://github.com/Kyou-Izumi/advanced-discord-owo-tool-farm/tree/main/doc/security/Mid0aria.md): Installing Grabbers to steal user information
-    - Further information: [Here](https://github.com/Kyou-Izumi/advanced-discord-owo-tool-farm/tree/main/doc/security/Mid0aria.md)
-    - Verified analytical article: [Here](https://www.reddit.com/r/Discord_selfbots/comments/1hlcmid/owo_farm_bot_is_harmful_and_if_you_use_it_theres/)
-
-*(Add more entries as needed.)*
+1. [**Mid0aria/owofarmbot_stable**](https://github.com/Kyou-Izumi/advanced-discord-owo-tool-farm/tree/main/doc/security/README.md): Installing Grabbers to steal user information
+    - Further information: [Here](https://github.com/Kyou-Izumi/advanced-discord-owo-tool-farm/tree/main/doc/security/README.md)
+    - Verified analytical article: [OwO Farm Bot is harmful and if you use it, there's a 99% chance that you'll get infected by it](https://www.reddit.com/r/Discord_selfbots/comments/1hlcmid/owo_farm_bot_is_harmful_and_if_you_use_it_theres/)
 
 ### Reporting Suspicious Repositories
 If you encounter a repository that you believe is dangerous, report it to the hosting platform (e.g., GitHub, GitLab) and inform others in the community.

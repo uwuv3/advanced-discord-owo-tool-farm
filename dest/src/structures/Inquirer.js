@@ -78,17 +78,11 @@ export class ConfigManager {
                     name: "Edit config",
                     value: "edit",
                 },
-                /**
-                 * @todo export account
-                 */
                 {
                     name: "Export config into auto-run file",
                     value: "export",
                     disabled: this.cache ? false : "No existing config found",
                 },
-                /**
-                 * @todo delete account selection
-                 */
                 {
                     name: "Delete account",
                     value: "delete",
@@ -158,7 +152,6 @@ export class ConfigManager {
                 {
                     name: "Call (Friends Only)",
                     value: "call",
-                    disabled: true
                 }
             ].map(c => ({ ...c, checked: cache?.includes(c.value) }))
         });
@@ -210,9 +203,15 @@ export class ConfigManager {
     };
     getAdminID = (cache) => {
         console.clear();
+        const criticalWayNotify = ["call", "dms"].some(w => this.config.wayNotify.includes(w));
+        const message = "Enter user ID you want to " + (
+        //(<Configuration["wayNotify"]>["webhook", ...criticalWayNotify]).some(w => this.config.wayNotify.includes(w)) 
+        this.config.autoCookie ? "send Cookie"
+            : this.config.autoClover ? "send Clover"
+                : "be notified via Webhook/Call/Direct Message") + ": ";
         return input({
-            required: this.config.wayNotify.includes("call") || this.config.wayNotify.includes("dms"),
-            message: "Enter user ID you want to be notified via Webhook/Call/Direct Message: ",
+            required: criticalWayNotify || this.config.autoCookie,
+            message,
             validate: async (id) => {
                 if (!/^\d{17,19}$/.test(id))
                     return "Invalid User ID";
@@ -257,11 +256,11 @@ export class ConfigManager {
                     name: "2Captcha",
                     value: "2captcha"
                 },
-                {
-                    name: "AntiCaptcha",
-                    value: "anticaptcha",
-                    disabled: true
-                }
+                // {
+                //     name: "AntiCaptcha",
+                //     value: "anticaptcha" as Configuration["captchaAPI"],
+                //     disabled: true
+                // }
             ],
             default: cache
         });
@@ -318,7 +317,7 @@ export class ConfigManager {
                     { name: "Pray notification reception", value: `pray ${this.config.adminID}` },
                     { name: "Curse notification reception", value: `curse ${this.config.adminID}` }
                 ] : [])
-            ].map(c => ({ ...c, checked: cache?.includes(c.value) }))
+            ].map(c => ({ ...c, checked: cache?.includes(c.value) })),
         });
     };
     quoteAction = (cache) => {
@@ -334,7 +333,7 @@ export class ConfigManager {
                     name: "Quote",
                     value: "quote"
                 },
-            ].map(c => ({ ...c, checked: cache?.includes(c.value) }))
+            ].map(c => ({ ...c, checked: cache?.includes(c.value) })),
         });
     };
     otherAction = (cache) => {
@@ -354,7 +353,7 @@ export class ConfigManager {
                     name: "Piku",
                     value: "piku"
                 },
-            ].map(c => ({ ...c, checked: cache?.includes(c.value) }))
+            ].map(c => ({ ...c, checked: cache?.includes(c.value) })),
         });
     };
     trueFalse = (message, cache) => {
@@ -391,6 +390,10 @@ export class ConfigManager {
             this.config.autoCrate = await this.trueFalse("Toggle Automatically Use Gem Crate", this.cache?.autoCrate);
         if (this.config.autoGem)
             this.config.autoFCrate = await this.trueFalse("Toggle Automatically Use Fabled Crate", this.cache?.autoFCrate);
+        this.config.autoCookie = await this.trueFalse("Toggle Automatically Send Cookie", this.cache?.autoCookie);
+        this.config.autoClover = await this.trueFalse("Toggle Automatically Send Clover", this.cache?.autoClover);
+        if ((this.config.autoCookie || this.config.autoClover) && (!this.config.adminID || this.config.adminID.length === 0))
+            this.config.adminID = await this.getAdminID(this.cache?.adminID);
         this.config.autoOther = await this.otherAction(Array.isArray(this.cache?.autoOther) ? this.cache?.autoOther : undefined);
         this.config.autoQuote = await this.quoteAction(Array.isArray(this.cache?.autoQuote) ? this.cache.autoQuote : undefined);
         this.config.autoPray = await this.prayCurse(this.cache?.autoPray);
@@ -405,12 +408,11 @@ export class ConfigManager {
         console.clear();
         await checkUpdate();
         if (Object.keys(this.rawData).length === 0) {
-            const confirm = await this.trueFalse(`Copyright 2023 © Eternity_VN x aiko-chan-ai. All rights reserved.
-Made by Vietnamese, From Github with ❤️
-By using this module, you agree to our Terms of Use and accept any associated risks.
-Please note that we do not take any responsibility for accounts being banned due to the use of our tools.
-
-Do you want to continue?`, false);
+            const confirm = await this.trueFalse("Copyright 2021-2025 © Eternity_VN [Kyou Izumi] x aiko-chan-ai [Elysia]. All rights reserved."
+                + "\nMade by Vietnamese, From Github with ❤️"
+                + "\nBy using this module, you agree to our Terms of Use and accept any associated risks."
+                + "\nPlease note that we do not take any responsibility for accounts being banned due to the use of our tools."
+                + "\nDo you want to continue?", false);
             if (!confirm)
                 process.exit(0);
         }

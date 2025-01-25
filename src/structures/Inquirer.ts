@@ -91,19 +91,11 @@ export class ConfigManager {
                     name: "Edit config",
                     value: "edit",
                 },
-
-                /**
-                 * @todo export account
-                 */
                 {
                     name: "Export config into auto-run file",
                     value: "export",
                     disabled: this.cache ? false : "No existing config found",
                 },
-
-                /**
-                 * @todo delete account selection
-                 */
                 {
                     name: "Delete account",
                     value: "delete",
@@ -178,7 +170,6 @@ export class ConfigManager {
                 {
                     name: "Call (Friends Only)",
                     value: "call" as Configuration["wayNotify"][number],
-                    disabled: true
                 }
             ].map(c => ({ ...c, checked: cache?.includes(c.value) }))
         })
@@ -231,9 +222,19 @@ export class ConfigManager {
 
     private getAdminID = (cache?: string) => {
         console.clear()
+
+        const criticalWayNotify = (<Configuration["wayNotify"]>["call", "dms"]).some(w => this.config.wayNotify.includes(w))
+
+        const message = "Enter user ID you want to " + (
+            //(<Configuration["wayNotify"]>["webhook", ...criticalWayNotify]).some(w => this.config.wayNotify.includes(w)) 
+            this.config.autoCookie ? "send Cookie"
+                : this.config.autoClover ? "send Clover"
+                    : "be notified via Webhook/Call/Direct Message"
+        ) + ": "
+
         return input({
-            required: this.config.wayNotify.includes("call") || this.config.wayNotify.includes("dms"),
-            message: "Enter user ID you want to be notified via Webhook/Call/Direct Message: ",
+            required: criticalWayNotify || this.config.autoCookie,
+            message,
             validate: async (id) => {
                 if (!/^\d{17,19}$/.test(id)) return "Invalid User ID"
                 if (this.config.wayNotify.includes("call") || this.config.wayNotify.includes("dms")) {
@@ -275,11 +276,11 @@ export class ConfigManager {
                     name: "2Captcha",
                     value: "2captcha" as Configuration["captchaAPI"]
                 },
-                {
-                    name: "AntiCaptcha",
-                    value: "anticaptcha" as Configuration["captchaAPI"],
-                    disabled: true
-                }
+                // {
+                //     name: "AntiCaptcha",
+                //     value: "anticaptcha" as Configuration["captchaAPI"],
+                //     disabled: true
+                // }
             ],
             default: cache
         })
@@ -329,7 +330,7 @@ export class ConfigManager {
     }
 
     private prayCurse = (cache?: string[]) => {
-        console.clear()
+        console.clear();
         return checkbox<string>({
             message: "Select to pray/curse (randomly if multiple), Empty to skip: ",
             choices: [
@@ -339,12 +340,12 @@ export class ConfigManager {
                     { name: "Pray notification reception", value: `pray ${this.config.adminID}` },
                     { name: "Curse notification reception", value: `curse ${this.config.adminID}` }
                 ] : [])
-            ].map(c => ({ ...c, checked: cache?.includes(c.value) }))
-        })
+            ].map(c => ({ ...c, checked: cache?.includes(c.value) })),
+        });
     }
 
     private quoteAction = (cache?: Configuration["autoQuote"]) => {
-        console.clear()
+        console.clear();
         return checkbox<Configuration["autoQuote"][number]>({
             message: "Select quote action: ",
             choices: [
@@ -356,8 +357,8 @@ export class ConfigManager {
                     name: "Quote",
                     value: "quote" as Configuration["autoQuote"][number]
                 },
-            ].map(c => ({ ...c, checked: cache?.includes(c.value) }))
-        })
+            ].map(c => ({ ...c, checked: cache?.includes(c.value) })),
+        });
     }
 
     private otherAction = (cache?: Configuration["autoOther"]) => {
@@ -377,58 +378,63 @@ export class ConfigManager {
                     name: "Piku",
                     value: "piku" as Configuration["autoOther"][number]
                 },
-            ].map(c => ({ ...c, checked: cache?.includes(c.value) }))
-        })
+            ].map(c => ({ ...c, checked: cache?.includes(c.value) })),
+        });
     }
 
     private trueFalse = (message: string, cache?: boolean) => {
-        console.clear()
+        console.clear();
         return confirm({
             message: message + ": ",
             default: cache
-        })
+        });
     }
 
-    private saveData = (data: DataFile) => fs.writeFileSync(this.dataPath, JSON.stringify(data, null, 4))
+    private saveData = (data: DataFile) => fs.writeFileSync(this.dataPath, JSON.stringify(data, null, 4));
 
     private editConfig = async () => {
-        this.config.username = this.agent.user?.username!
-        this.config.token = this.agent.token!
+        this.config.username = this.agent.user?.username!;
+        this.config.token = this.agent.token!;
 
-        const guild = await this.listGuild(this.cache?.guildID)
-        this.config.guildID = guild.id
-        this.config.channelID = await this.listChannel(guild, this.cache?.channelID)
+        const guild = await this.listGuild(this.cache?.guildID);
+        this.config.guildID = guild.id;
+        this.config.channelID = await this.listChannel(guild, this.cache?.channelID);
 
-        this.config.wayNotify = await this.wayNotify(this.cache?.wayNotify)
+        this.config.wayNotify = await this.wayNotify(this.cache?.wayNotify);
         if (this.config.wayNotify.includes("music")) {
-            this.config.musicPath = await this.musicNotify(this.cache?.musicPath)
+            this.config.musicPath = await this.musicNotify(this.cache?.musicPath);
             while (fs.statSync(this.config.musicPath).isDirectory()) {
-                this.config.musicPath = await this.musicNotify2(this.config.musicPath)
+                this.config.musicPath = await this.musicNotify2(this.config.musicPath);
             }
         }
-        if (this.config.wayNotify.includes("webhook")) this.config.webhookURL = await this.webhookURL(this.cache?.webhookURL)
-        if ((["webhook", "dms", "call"] as Configuration["wayNotify"]).some(w => this.config.wayNotify.includes(w))) 
-            this.config.adminID = await this.getAdminID(this.cache?.adminID)
+        if (this.config.wayNotify.includes("webhook")) this.config.webhookURL = await this.webhookURL(this.cache?.webhookURL);
+        if ((["webhook", "dms", "call"] as Configuration["wayNotify"]).some(w => this.config.wayNotify.includes(w)))
+            this.config.adminID = await this.getAdminID(this.cache?.adminID);
 
-        this.config.captchaAPI = await this.captchaAPI(this.cache?.captchaAPI)
-        if (this.config.captchaAPI) this.config.apiKey = await this.getAPIKey(this.cache?.apiKey)
+        this.config.captchaAPI = await this.captchaAPI(this.cache?.captchaAPI);
+        if (this.config.captchaAPI) this.config.apiKey = await this.getAPIKey(this.cache?.apiKey);
 
-        this.config.prefix = await this.getPrefix(this.cache?.prefix)
+        this.config.prefix = await this.getPrefix(this.cache?.prefix);
 
-        this.config.autoGem = await this.gemUsage(this.cache?.autoGem)
-        if (this.config.autoGem) this.config.autoCrate = await this.trueFalse("Toggle Automatically Use Gem Crate", this.cache?.autoCrate)
-        if (this.config.autoGem) this.config.autoFCrate = await this.trueFalse("Toggle Automatically Use Fabled Crate", this.cache?.autoFCrate)
+        this.config.autoGem = await this.gemUsage(this.cache?.autoGem);
+        if (this.config.autoGem) this.config.autoCrate = await this.trueFalse("Toggle Automatically Use Gem Crate", this.cache?.autoCrate);
+        if (this.config.autoGem) this.config.autoFCrate = await this.trueFalse("Toggle Automatically Use Fabled Crate", this.cache?.autoFCrate);
 
-        this.config.autoOther = await this.otherAction(Array.isArray(this.cache?.autoOther) ? this.cache?.autoOther : undefined)
-        this.config.autoQuote = await this.quoteAction(Array.isArray(this.cache?.autoQuote) ? this.cache.autoQuote : undefined)
-        this.config.autoPray = await this.prayCurse(this.cache?.autoPray)
-        this.config.autoDaily = await this.trueFalse("Toggle Automatically Claim Daily Reward", this.cache?.autoDaily)
-        this.config.autoSell = await this.trueFalse("Toggle Automatically Sell once cash runs out", this.cache?.autoSell)
-        this.config.autoSleep = await this.trueFalse("Toggle Automatically pause after times", this.cache?.autoSleep)
-        this.config.autoReload = await this.trueFalse("Toggle Automatically reload config daily", this.cache?.autoReload)
-        this.config.autoResume = await this.trueFalse("Toggle Automatically resume after captcha is solved", this.cache?.autoResume)
+        this.config.autoCookie = await this.trueFalse("Toggle Automatically Send Cookie", this.cache?.autoCookie);
+        this.config.autoClover = await this.trueFalse("Toggle Automatically Send Clover", this.cache?.autoClover);
+        if ((this.config.autoCookie || this.config.autoClover) && (!this.config.adminID || this.config.adminID.length === 0))
+            this.config.adminID = await this.getAdminID(this.cache?.adminID);
 
-        this.config.token = this.agent.token!
+        this.config.autoOther = await this.otherAction(Array.isArray(this.cache?.autoOther) ? this.cache?.autoOther : undefined);
+        this.config.autoQuote = await this.quoteAction(Array.isArray(this.cache?.autoQuote) ? this.cache.autoQuote : undefined);
+        this.config.autoPray = await this.prayCurse(this.cache?.autoPray);
+        this.config.autoDaily = await this.trueFalse("Toggle Automatically Claim Daily Reward", this.cache?.autoDaily);
+        this.config.autoSell = await this.trueFalse("Toggle Automatically Sell once cash runs out", this.cache?.autoSell);
+        this.config.autoSleep = await this.trueFalse("Toggle Automatically pause after times", this.cache?.autoSleep);
+        this.config.autoReload = await this.trueFalse("Toggle Automatically reload config daily", this.cache?.autoReload);
+        this.config.autoResume = await this.trueFalse("Toggle Automatically resume after captcha is solved", this.cache?.autoResume);
+
+        this.config.token = this.agent.token!;
     }
 
     public collectData = async () => {
@@ -437,12 +443,11 @@ export class ConfigManager {
 
         if (Object.keys(this.rawData).length === 0) {
             const confirm = await this.trueFalse(
-                `Copyright 2023 © Eternity_VN x aiko-chan-ai. All rights reserved.
-Made by Vietnamese, From Github with ❤️
-By using this module, you agree to our Terms of Use and accept any associated risks.
-Please note that we do not take any responsibility for accounts being banned due to the use of our tools.
-
-Do you want to continue?`, false
+                "Copyright 2021-2025 © Eternity_VN [Kyou Izumi] x aiko-chan-ai [Elysia]. All rights reserved." 
+                + "\nMade by Vietnamese, From Github with ❤️" 
+                + "\nBy using this module, you agree to our Terms of Use and accept any associated risks." 
+                + "\nPlease note that we do not take any responsibility for accounts being banned due to the use of our tools." 
+                + "\nDo you want to continue?", false
             )
             if (!confirm) process.exit(0)
         }

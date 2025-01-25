@@ -5,13 +5,13 @@ import {
 	Message,
 	TextChannel,
 } from "discord.js-selfbot-v13";
-import { mapInt, ranInt, shuffleArray, timeHandler } from "../utils/utils.js";
+import { loadQuestCommand, mapInt, ranInt, shuffleArray, timeHandler } from "../utils/utils.js";
 import {
-	agentOptions,
+	AgentOptions,
 	CommandCondition,
 	Commands,
 	Configuration,
-	sendOptions,
+	SendOptions,
 } from "../typings/typings.js";
 import { logger } from "../utils/logger.js";
 import { quotes } from "../typings/quotes.js";
@@ -21,6 +21,7 @@ import { loadCommands } from "../feats/command.js";
 import { commandHandler } from "../handler/commandHandler.js";
 import { dmsHandler } from "../handler/dmsHandler.js";
 import { loadSweeper } from "../feats/sweeper.js";
+import { getQuestReward, processQuestLogs } from "../feats/quest.js";
 
 export class BaseAgent extends Client {
 	public config!: Configuration;
@@ -31,11 +32,14 @@ export class BaseAgent extends Client {
 	totalTexts = 0;
 
 	owoID = "408785106942164992";
-	prefix = "owo ";
+	prefix = "owo";
+
 	private owoCommands = shuffleArray([
 		...Array<string>(6).fill("hunt"),
 		...Array<string>(4).fill("battle"),
 	]);
+	private questCommands = <CommandCondition[]>[]
+
 	public commands: Collection<string, Commands> = new Collection();
 	captchaDetected = false;
 	paused = false;
@@ -50,25 +54,31 @@ export class BaseAgent extends Client {
 	private toutOther = 0;
 	private toutPray = 0;
 
-	private inventory: string[] = [];
+	private inventory = <string[]>[];
 	private gem1?: number[];
 	private gem2?: number[];
 	private gem3?: number[];
 
 	RETAINED_USERS_IDS = [this.owoID]
 
-	constructor({ options }: agentOptions = {}) {
+	constructor({ options }: AgentOptions = {}) {
 		super(options);
 	}
+
 	public registerEvents = () => {
 		this.on("ready", async () => {
 			logger.info("Logged in as " + this.user?.displayName);
-			loadPresence(this);
+
+			if(this.config.adminID) this.RETAINED_USERS_IDS.push(this.config.adminID);
 			loadSweeper(this);
+
+			if (this.config.showRPC) loadPresence(this);
 			if (this.config.prefix) this.commands = await loadCommands();
+
 			this.activeChannel = this.channels.cache.get(
 				this.config.channelID[0]
 			) as TextChannel;
+
 			this.main();
 		});
 		owoHandler(this);
@@ -96,19 +106,34 @@ export class BaseAgent extends Client {
 			withPrefix = true,
 			channel = this.activeChannel,
 			delay = ranInt(120, 3700),
-		}: sendOptions = {}
+		}: SendOptions = {}
 	) => {
 		if (this.captchaDetected || this.paused) return;
 
 		if (delay) await this.sleep(delay);
-		if (withPrefix) message = this.prefix + message;
+		if (withPrefix) message = [this.prefix, message].join(" ");
 		await channel.send(message).catch(logger.error);
 		if (withPrefix) logger.sent(message);
 		withPrefix ? this.totalCommands++ : this.totalTexts++;
+
+		if (this.config.autoQuest || this.cache.autoQuest) {
+			this.activeChannel.createMessageCollector({
+				filter: m => m.author.id == this.owoID && m.content.includes(m.client.user?.username!) && m.content.includes("You finished a quest"),
+				max: 1, time: 15_000
+			}).once("collect", async (m) => {
+				logger.debug("Quest completed! Reloading...");
+				logger.info("Quest completed! Reward:" + getQuestReward(m.content.split("earned: ")[1]));
+
+				logger.info("Deloading " + this.questCommands.length + " temporary features");
+
+				this.questCommands = [];
+				this.config.autoQuest = this.cache.autoQuest;
+				this.config.autoQuote = this.cache.autoQuote;
+			})
+		}
 	};
 
 	public aReload = async (force = false) => {
-		if (!force && Date.now() > this.reloadTime) return;
 		this.reloadTime = new Date().setUTCHours(
 			0,
 			ranInt(0, 30),
@@ -117,12 +142,12 @@ export class BaseAgent extends Client {
 		);
 		[this.gem1, this.gem2, this.gem3] = Array<undefined>(3).fill(undefined);
 		this.config = this.cache;
-		if (force) return true
+		return true
 	};
 
 	public aDaily = async () => {
 		await this.send("daily");
-		this.config.autoDaily = false;
+		return this.config.autoDaily = false;
 	};
 
 	public aPray = async () => {
@@ -188,22 +213,51 @@ export class BaseAgent extends Client {
 		}
 	};
 
-	public aChecklist = async () => {
-		await this.send("checklist");
-		const filter: CollectorFilter<[Message<boolean>]> = (m) =>
-			m.author.id == this.owoID &&
-			m.embeds.length > 0 &&
-			(m.embeds[0].author?.name.includes(m.guild?.members.me?.displayName!) ?? false) &&
-			(m.embeds[0].author?.name.includes("Checklist") ?? false)
-		this.activeChannel.createMessageCollector({
-			filter,
-			max: 1,
-			time: 15_000
-		}).once("collect", async (m) => {
+	public aCookie = async () => {
+		if (!this.config.adminID || this.config.adminID.length === 0) {
+			logger.warn("Auto Cookie is enabled without AdminID! Skipping...");
+			return this.config.autoCookie = false;
+		}
 
-		})
+		await this.send("cookie " + this.config.adminID);
+		return this.config.autoCookie = false;
 	}
 
+	public aClover = async () => {
+		if (!this.config.adminID || this.config.adminID.length === 0) {
+			logger.warn("Auto Clover is enabled without AdminID! Skipping...");
+			return this.config.autoClover = false;
+		}
+
+		await this.send("clover " + this.config.adminID);
+		return this.config.autoClover = false;
+	}
+
+	////////////////////////// QUEST COMMANDS SESSION //////////////////////////
+
+	private aGamble = () => {
+		switch (ranInt(0, 2)) {
+			case 0:
+				return this.send("slots");
+			case 1:
+				return this.send("coinflip" + ["head", "tail"][ranInt(0, 2)]);
+		}
+	}
+
+	private aAction = () => {
+		const actionCommands = [
+			"cuddle", "hug", "kiss", "lick", "nom",
+			"pat", "poke", "slap", "stare", "highfive", "bite",
+			"greet", "punch", "handholding", "tickle", "kill",
+			"hold", "pats", "wave", "boop", "snuggle", "bully"
+		]
+
+		return this.send(`${actionCommands[ranInt(0, actionCommands.length)]} <@${this.owoID}>`);
+	}
+
+	////////////////////// END OF QUEST COMMANDS SESSION ///////////////////////
+
+	// TODO: Implement aQuest
 	public aQuest = async () => {
 		await this.send("quest");
 		const filter: CollectorFilter<[Message<boolean>]> = (m) =>
@@ -220,34 +274,58 @@ export class BaseAgent extends Client {
 			time: 15_000
 		}).once("collect", async (m) => {
 			const description = m.embeds[0].description
-			if(!description) return logger.error("Cannot retrieve Quest Log")
+			if (!description) return logger.error("Cannot retrieve Quest Log")
 
-			const raw = description.split("\n").slice(1)
-				.map(r => r.replace(/<:blank:427371936482328596>|`|\*\*/g, "").split("‣"))
-				.flat().filter(r => r.length > 0)
-				.reduce((acc, curr, i) => {
-					if (i % 3 === 0) {
-						acc.push([])
-					}
-					acc[acc.length - 1].push(curr.trim())
-					return acc
-				}, <Array<string[]>>[])
-			const quests = raw.map(q => {
-				return {
-					name: q[0],
-					reward: [...q[1].matchAll(/<:(\w+):\d+>/g)].map(r => r[1]).reduce((acc, curr) => ({
-						...acc,
-						[curr]: (acc[curr] || 0) + 1
-					}), <Record<string, number>>{}),
-					progress: ((input) => {
-						const [current, total] = [...input.matchAll(/\[(\d+)\/(\d+)\]/g)].map(r => [r[1], r[2]]).flat()
-						return {
-							current: parseInt(current),
-							total: parseInt(total)
-						}
-					})(q[2])
-				}
-			})
+			this.config.autoQuest = false;
+
+			if (description.includes("You finished all of your quests!")) {
+				logger.info("Empty Quest Log! " + (m.embeds[0].footer?.text ?? "Skipping..."));
+				return;
+			}
+
+			const quests = processQuestLogs(description);
+			const supportedQuests = quests.filter(q => q != "unsupported");
+
+			if (supportedQuests.length === 0) {
+				logger.info("No supported quests found! Skipping...");
+				return;
+			};
+
+			logger.info(`${quests.length} quests found: ${supportedQuests.length} supported`);
+
+			if (supportedQuests.includes("gamble")) {
+				logger.debug("Temporarily enabling gamble for quest completion");
+				this.questCommands.push(loadQuestCommand(this.aGamble));
+			}
+
+			if (supportedQuests.includes("action")) {
+				logger.debug("Temporarily enabling action for quest completion");
+				this.questCommands.push(loadQuestCommand(this.aAction));
+			}
+
+			if(supportedQuests.includes("owo") && !this.config.autoQuote.includes("owo")) {
+				logger.debug("Temporarily enabling owo for quest completion");
+				this.config.autoQuote.push("owo");
+			}
+
+			logger.info(this.questCommands.length + " features temporarily enabled for quest completion");
+		});
+	}
+
+	// TODO: Implement aChecklist
+	public aChecklist = async () => {
+		await this.send("checklist");
+		const filter: CollectorFilter<[Message<boolean>]> = (m) =>
+			m.author.id == this.owoID &&
+			m.embeds.length > 0 &&
+			(m.embeds[0].author?.name.includes(m.guild?.members.me?.displayName!) ?? false) &&
+			(m.embeds[0].author?.name.includes("Checklist") ?? false)
+		this.activeChannel.createMessageCollector({
+			filter,
+			max: 1,
+			time: 15_000
+		}).once("collect", async (m) => {
+
 		})
 	}
 
@@ -321,52 +399,64 @@ export class BaseAgent extends Client {
 				});
 		}
 
-		const commands: CommandCondition[] = [
+		let commands: CommandCondition[] = [
 			{
-				condition: () =>
+				condition:
 					this.config.autoPray.length > 0 &&
 					Date.now() - this.toutPray >= 360_000,
 				action: this.aPray,
 			},
 			{
-				condition: () =>
+				condition: 
 					this.config.autoDaily,
 				action: this.aDaily
 			},
 			{
-				condition: () =>
+				condition: 
 					this.config.autoOther.length > 0 &&
 					Date.now() - this.toutOther >= 60_000,
 				action: this.aOther,
 			},
 			{
-				condition: () =>
+				condition: 
 					this.config.autoSleep &&
 					this.totalCommands >= this.coutSleep,
 				action: this.aSleep,
 			},
 			{
-				condition: () =>
+				condition: 
 					this.config.channelID.length > 1 &&
 					this.totalCommands >= this.coutChannel,
 				action: this.cChannel,
 			},
 			{
-				condition: () =>
+				condition: 
 					this.config.autoReload &&
 					Date.now() > this.reloadTime,
-				action: () => this.aReload(),
+				action: this.aReload,
 			},
 			{
-				condition: () =>
+				condition: 
 					this.config.autoQuote.length > 0,
 				action: this.aQuote,
 			},
+			{
+				condition: 
+					this.config.autoCookie,
+				action: this.aCookie,
+			},
+			{
+				condition: 
+					this.config.autoClover,
+				action: this.aClover,
+			}
 		];
+
+		commands = shuffleArray(commands.concat(this.questCommands));
 
 		for (const command of commands) {
 			if (this.captchaDetected || this.paused) return;
-			if (command.condition()) await command.action();
+			if (command.condition) await command.action();
 			const delay = ranInt(15000, 22000) / commands.length;
 			await this.sleep(ranInt(delay, delay + 1200));
 		}

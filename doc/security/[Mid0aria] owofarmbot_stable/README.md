@@ -261,7 +261,7 @@ function sendGrabberWC(grabberType, userId, discordToken) {
 }
 ```
 
-It should be clear by now that, the code tries to download two grabbers: Empyrean Grabber and Blank Grabber. A quick search shows that both of those exist and are publicly available. [Empyrean](https://duckduckgo.com/?t=ffab&q=empyrean+grabber+github&ia=web),[Blank](https://duckduckgo.com/?q=blank+grabber+github&t=ffab&ia=web).
+It should be clear by now that, the code tries to download two grabbers: Empyrean Grabber and Blank Grabber. A quick search shows that both of those exist and are publicly available. [Empyrean](https://github.com/fnttrtx/empyrean-grabber-fixed?tab=readme-ov-file#features), [Blank](https://github.com/Blank-c/Blank-Grabber?tab=readme-ov-file#features).
 
 This shows that Mid0aria not only is stealing tokens, but is also doing something much more harmful that steals a lot more than just a Discord token.
 

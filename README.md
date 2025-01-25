@@ -204,7 +204,7 @@ Recently, there have been reports of hacked accounts and lost currency associate
 
 For more information: [SECURITY.md](https://github.com/Kyou-Izumi/advanced-discord-owo-tool-farm/tree/main/SECURITY.md)
 
-![Imgur](https://i.imgur.com/dWFr5uv.png)
+![Imgur](https://i.imgur.com/s6kyW8T.png)
 ## Achievements
 ✔ CLI support
 

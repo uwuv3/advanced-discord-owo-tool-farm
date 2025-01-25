@@ -68,6 +68,41 @@ export const musicCommand = (musicPath) => {
     }
     return command += ` "${musicPath}"`;
 };
+export const getQuestType = (name) => {
+    const questTypeLookup = {
+        "xp": "xp",
+        "hunt": "hunt",
+        "battle": "battle",
+        "'owo'": "owo",
+        "gamble": "gamble",
+        "action command on someone": "action",
+    };
+    for (const [key, value] of Object.entries(questTypeLookup)) {
+        if (name.includes(key))
+            value;
+    }
+    return "unsupported";
+    /**
+     * Earn  125000 xp from hunting and battling!
+     * Manually hunt 100 times!
+     * Battle 50 times!
+     * Hunt 3 animals that are mythical rank!
+     *
+     * Use an action command on someone 3 times!
+     *
+     * Gamble 10 times!
+     * Have a friend use an action command on you 1 times!
+     * Have a friend pray to you 3 times!
+     * Have a friend curse you 3 times!
+     * Receive a cookie from 2 friends!
+     */
+};
+export const loadQuestCommand = (callback) => {
+    return {
+        condition: true,
+        action: callback
+    };
+};
 export const getHWID = () => {
     return crypto.createHash("sha256").update([
         os.platform(),

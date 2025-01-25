@@ -9,7 +9,7 @@ IF %ERRORLEVEL% NEQ 0 (
 )
 
 echo Starting Tool...
-call npm start
+call npx npm start
 IF %ERRORLEVEL% NEQ 0 (
     echo Failed to start the tool. Exiting...
     exit /b 1

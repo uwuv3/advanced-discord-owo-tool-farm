@@ -16,11 +16,15 @@ export const defaultConfig = {
     autoFCrate: true,
     autoQuote: ["owo", "quote"],
     autoDaily: true,
-    autoSell: true,
+    autoQuest: true,
+    autoCookie: true,
+    autoClover: true,
     autoOther: ["run", "pup", "piku"],
+    autoSell: true,
     autoSleep: true,
     autoReload: true,
-    autoResume: true
+    autoResume: true,
+    showRPC: true
 };
 // export interface Configuration {
 //     tag: string

@@ -12,5 +12,5 @@ export const loadPresence = async (client) => {
         .setAssetsSmallText("Kyou Izumi")
         .addButton("GitHub", "https://github.com/Kyou-Izumi/advanced-discord-owo-tool-farm")
         .addButton("YouTube", "https://www.youtube.com/@daongotau");
-    client.user?.setPresence({ activities: [rpc], status: "idle" });
+    client.user?.setPresence({ activities: [rpc] });
 };
