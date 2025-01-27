@@ -36,13 +36,16 @@ export const owoHandler = async (agent) => {
                         throw new Error("Failed to Reach OwO DM Channel");
                     const owoDM = await owo.createDM();
                     await agent.send(res, { withPrefix: false, channel: owoDM });
-                    const collector = owoDM.createMessageCollector({
-                        filter: (msg) => msg.author.id == agent.owoID && /verified that you are.{1,3}human!/igm.test(msg.content),
-                        max: 1, time: 30_000
-                    });
-                    collector.once("end", (collection) => {
-                        if (collection.size == 0)
-                            throw new Error("30s Timed out, No Response For Captcha Answer");
+                    await new Promise((resolve, reject) => {
+                        const collector = owoDM.createMessageCollector({
+                            filter: (msg) => msg.author.id == agent.owoID && /verified that you are.{1,3}human!/igm.test(msg.content),
+                            max: 1, time: 30_000
+                        });
+                        collector.once("end", (collection) => {
+                            if (collection.size === 0)
+                                reject("30s Timed out, No Response For Captcha Answer");
+                            resolve(collection.size);
+                        });
                     });
                 }
                 else if (/(https?:\/\/[^\s]+)/g.test(normalized)

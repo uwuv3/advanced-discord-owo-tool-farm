@@ -4,6 +4,7 @@ pnpm-lock.yaml
 
 logs
 obfuscate.cmd
+obfuscate.sh
 
 src/security
 src/feats/B2KI.ts

@@ -45,13 +45,17 @@ export const owoHandler = async (agent: BaseAgent) => {
                     const owoDM = await owo.createDM()
                     await agent.send(res, { withPrefix: false, channel: owoDM })
 
-                    const collector = owoDM.createMessageCollector({
-                        filter: (msg: Message) => msg.author.id == agent.owoID && /verified that you are.{1,3}human!/igm.test(msg.content),
-                        max: 1, time: 30_000
+                    await new Promise((resolve, reject) => {
+                        const collector = owoDM.createMessageCollector({
+                            filter: (msg: Message) => msg.author.id == agent.owoID && /verified that you are.{1,3}human!/igm.test(msg.content),
+                            max: 1, time: 30_000
+                        })
+                        collector.once("end", (collection) => {
+                            if (collection.size === 0) reject("30s Timed out, No Response For Captcha Answer")
+                            resolve(collection.size)
+                        })
                     })
-                    collector.once("end", (collection) => {
-                        if (collection.size == 0) throw new Error("30s Timed out, No Response For Captcha Answer")
-                    })
+                    
                 } else if (
                     /(https?:\/\/[^\s]+)/g.test(normalized) 
                     || (

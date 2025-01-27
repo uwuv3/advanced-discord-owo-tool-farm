@@ -69,7 +69,7 @@ export class BaseAgent extends Client {
 		this.on("ready", async () => {
 			logger.info("Logged in as " + this.user?.displayName);
 
-			if(this.config.adminID) this.RETAINED_USERS_IDS.push(this.config.adminID);
+			if (this.config.adminID) this.RETAINED_USERS_IDS.push(this.config.adminID);
 			loadSweeper(this);
 
 			if (this.config.showRPC) loadPresence(this);
@@ -303,7 +303,7 @@ export class BaseAgent extends Client {
 				this.questCommands.push(loadQuestCommand(this.aAction));
 			}
 
-			if(supportedQuests.includes("owo") && !this.config.autoQuote.includes("owo")) {
+			if (supportedQuests.includes("owo") && !this.config.autoQuote.includes("owo")) {
 				logger.debug("Temporarily enabling owo for quest completion");
 				this.config.autoQuote.push("owo");
 			}
@@ -340,6 +340,8 @@ export class BaseAgent extends Client {
 				this.inventory = msg.content.split("`");
 
 				if (this.config.autoFCrate && this.inventory.includes("049")) await this.send("lb fabled");
+				await this.sleep(ranInt(4800, 6200));
+
 				if (this.config.autoCrate && this.inventory.includes("050")) {
 					await this.send("lb all");
 					await this.sleep(ranInt(4800, 6200));
@@ -407,46 +409,46 @@ export class BaseAgent extends Client {
 				action: this.aPray,
 			},
 			{
-				condition: 
+				condition:
 					this.config.autoDaily,
 				action: this.aDaily
 			},
 			{
-				condition: 
+				condition:
 					this.config.autoOther.length > 0 &&
 					Date.now() - this.toutOther >= 60_000,
 				action: this.aOther,
 			},
 			{
-				condition: 
+				condition:
 					this.config.autoSleep &&
 					this.totalCommands >= this.coutSleep,
 				action: this.aSleep,
 			},
 			{
-				condition: 
+				condition:
 					this.config.channelID.length > 1 &&
 					this.totalCommands >= this.coutChannel,
 				action: this.cChannel,
 			},
 			{
-				condition: 
+				condition:
 					this.config.autoReload &&
 					Date.now() > this.reloadTime,
 				action: this.aReload,
 			},
 			{
-				condition: 
+				condition:
 					this.config.autoQuote.length > 0,
 				action: this.aQuote,
 			},
 			{
-				condition: 
+				condition:
 					this.config.autoCookie,
 				action: this.aCookie,
 			},
 			{
-				condition: 
+				condition:
 					this.config.autoClover,
 				action: this.aClover,
 			}
@@ -458,7 +460,7 @@ export class BaseAgent extends Client {
 			if (this.captchaDetected || this.paused) return;
 			if (command.condition) await command.action();
 			const delay = ranInt(15000, 22000) / commands.length;
-			await this.sleep(ranInt(delay, delay + 1200));
+			await this.sleep(ranInt(delay - 3000, delay + 1200));
 		}
 
 		await this.sleep(ranInt(2000, 5000))

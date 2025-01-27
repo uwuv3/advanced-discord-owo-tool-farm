@@ -250,6 +250,7 @@ export class BaseAgent extends Client {
             this.inventory = msg.content.split("`");
             if (this.config.autoFCrate && this.inventory.includes("049"))
                 await this.send("lb fabled");
+            await this.sleep(ranInt(4800, 6200));
             if (this.config.autoCrate && this.inventory.includes("050")) {
                 await this.send("lb all");
                 await this.sleep(ranInt(4800, 6200));
