@@ -112,7 +112,7 @@ export class BaseAgent extends Client {
 
 		if (delay) await this.sleep(delay);
 		if (withPrefix) message = [this.prefix, message].join(" ");
-		await channel.send(message).catch(logger.error);
+		await channel.send(message).catch(e => logger.error(e));
 		if (withPrefix) logger.sent(message);
 		withPrefix ? this.totalCommands++ : this.totalTexts++;
 

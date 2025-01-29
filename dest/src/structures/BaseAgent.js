@@ -78,7 +78,7 @@ export class BaseAgent extends Client {
             await this.sleep(delay);
         if (withPrefix)
             message = [this.prefix, message].join(" ");
-        await channel.send(message).catch(logger.error);
+        await channel.send(message).catch(e => logger.error(e));
         if (withPrefix)
             logger.sent(message);
         withPrefix ? this.totalCommands++ : this.totalTexts++;
@@ -352,7 +352,7 @@ export class BaseAgent extends Client {
             if (command.condition)
                 await command.action();
             const delay = ranInt(15000, 22000) / commands.length;
-            await this.sleep(ranInt(delay, delay + 1200));
+            await this.sleep(ranInt(delay - 3000, delay + 1200));
         }
         await this.sleep(ranInt(2000, 5000));
         this.main();
