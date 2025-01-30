@@ -6,7 +6,7 @@ const resumeCommand = {
             agent.paused = false;
             agent.captchaDetected = false;
             message.reply("Tool will be resumed in a few seconds!");
-            //     agent.main()
+            agent.main();
         }
         else
             message.reply(agent.captchaDetected

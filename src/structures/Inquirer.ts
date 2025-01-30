@@ -7,6 +7,7 @@ import { checkbox, confirm, input, select } from "@inquirer/prompts";
 import { logger } from "../utils/logger.js";
 import { Guild } from "discord.js-selfbot-v13";
 import { BaseAgent } from "./BaseAgent.js";
+import { checkUpdate } from "../feats/update.js";
 type DataFile = Record<string, Configuration>;
 
 export class ConfigManager {
@@ -430,6 +431,7 @@ export class ConfigManager {
         this.config.autoSell = await this.trueFalse("Toggle Automatically Sell once cash runs out", this.cache?.autoSell);
         this.config.autoSleep = await this.trueFalse("Toggle Automatically pause after times", this.cache?.autoSleep);
         this.config.autoReload = await this.trueFalse("Toggle Automatically reload config daily", this.cache?.autoReload);
+        this.config.showRPC = await this.trueFalse("Toggle Show Discord Rich Presence", this.cache?.showRPC);
         this.config.autoResume = await this.trueFalse("Toggle Automatically resume after captcha is solved", this.cache?.autoResume);
 
         this.config.token = this.agent.token!;
@@ -437,6 +439,7 @@ export class ConfigManager {
 
     public collectData = async () => {
         console.clear();
+        await checkUpdate();
 
         if (Object.keys(this.rawData).length === 0) {
             const confirm = await this.trueFalse(

@@ -5,7 +5,6 @@ import { logger } from "./src/utils/logger.js";
 import { defaultConfig } from "./src/typings/typings.js";
 import { BaseAgent } from "./src/structures/BaseAgent.js";
 import { InquirerConfig } from "./src/structures/Inquirer.js";
-import { checkUpdate } from "./src/feats/update.js";
 const program = new Command();
 const agent = new BaseAgent();
 process.on("unhandledRejection", (error) => {
@@ -29,7 +28,6 @@ program
         logger.logger.level = "debug";
         logger.info("Debug mode enabled!");
     }
-    await checkUpdate(Boolean(program.opts()?.update));
     if (program.opts()?.generate) {
         const filename = typeof program.opts().generate === "string" ? program.opts().generate : "autorun.json";
         if (fs.existsSync(filename) && fs.statSync(filename).size > 0) {

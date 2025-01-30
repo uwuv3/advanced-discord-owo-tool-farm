@@ -15,16 +15,15 @@ class selfUpdate {
     constructor() {
         this.checkUpdate = this.checkUpdate.bind(this);
     }
-    async checkUpdate(autoUpdate = false) {
+    async checkUpdate() {
         logger.info("Checking for update...");
         const { version: currentVersion } = JSON.parse(fs.readFileSync(path.join(process.cwd(), "package.json"), "utf-8"));
         const { data: { version: latestVersion } } = await axios.get("https://github.com/Kyou-Izumi/advanced-discord-owo-tool-farm/raw/refs/heads/main/package.json", {
             headers: this.baseHeaders
         });
         if (currentVersion < latestVersion) {
-            console.clear();
             logger.info(`New version available: v${latestVersion} (current: v${currentVersion})`);
-            const result = autoUpdate ? true : await confirm({
+            const result = await confirm({
                 message: "Would you like to update?",
                 default: true
             });

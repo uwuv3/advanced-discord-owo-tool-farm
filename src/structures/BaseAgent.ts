@@ -66,7 +66,7 @@ export class BaseAgent extends Client {
 	}
 
 	public registerEvents = () => {
-		this.on("ready", async () => {
+		this.once("ready", async () => {
 			logger.info("Logged in as " + this.user?.displayName);
 
 			if (this.config.autoReload) logger.info(`Config Loaded, Next config reload time: ${timeHandler(Date.now(), this.reloadTime, true)}`);
@@ -106,7 +106,7 @@ export class BaseAgent extends Client {
 		{
 			withPrefix = true,
 			channel = this.activeChannel,
-			delay = ranInt(120, 1700),
+			delay = ranInt(120, 1600),
 		}: SendOptions = {}
 	) => {
 		if (this.captchaDetected || this.paused) return;
@@ -197,11 +197,7 @@ export class BaseAgent extends Client {
 		this.activeChannel
 			.createMessageCollector({ filter, max: 1, time: 15_000 })
 			.once("collect", () => {
-				if (this.config.autoOther.indexOf(command) > -1)
-					this.config.autoOther.splice(
-						this.config.autoOther.indexOf(command),
-						1
-					);
+				this.config.autoOther = this.config.autoOther.filter(c => (c != command));
 			});
 	};
 
@@ -405,37 +401,7 @@ export class BaseAgent extends Client {
 	}
 
 	public main = async () => {
-		if (this.captchaDetected || this.paused || Date.now() - this.lastTime < 15_000) {
-			logger.debug("Captcha detected or need time");
-			await this.sleep(ranInt(1000, 2000, true));
-			this.main();
-			return;
-		}
-
-		// const command = this.owoCommands[ranInt(0, this.owoCommands.length)];
-		// if (!command) {
-		// 	logger.debug("No command found");
-		// 	await this.sleep(ranInt(1000, 1000, true));
-		// 	this.main();
-		// 	return;
-		// }
-		// await this.send(command);
-		// this.lastTime = Date.now();
-
-		// if (command.includes("h") && this.config.autoGem) {
-		// 	const filter = (msg: Message<boolean>) =>
-		// 		msg.author.id == this.owoID &&
-		// 		msg.content.includes(msg.guild?.members.me?.displayName!) &&
-		// 		/hunt is empowered by| spent 5 .+ and caught a/.test(msg.content);
-		// 	this.activeChannel
-		// 		.createMessageCollector({ filter, max: 1, time: 15_000 })
-		// 		.once("collect", async (msg) => {
-		// 			let param1 = !msg.content.includes("gem1") && (!this.gem1 || this.gem1.length > 0);
-		// 			let param2 = !msg.content.includes("gem3") && (!this.gem2 || this.gem2.length > 0);
-		// 			let param3 = !msg.content.includes("gem4") && (!this.gem3 || this.gem3.length > 0);
-		// 			if (param1 || param2 || param3) await this.aGem(param1, param2, param3);
-		// 		});
-		// }
+		if (this.captchaDetected || this.paused || Date.now() - this.lastTime < 15_000) return;
 
 		let commands: CommandCondition[] = [
 			{
@@ -492,18 +458,14 @@ export class BaseAgent extends Client {
 
 		commands = shuffleArray(commands.concat(this.questCommands));
 
-		if (Date.now() - this.lastTime > 15_000) await this.aOrdinary();// I think we should leave it like this, it's not worth thinking about, any command will be used
-
 		for (const command of commands) {
-			if (this.captchaDetected || this.paused) {
-				logger.debug(this.captchaDetected ? "Captcha detected, waiting..." : "Paused, waiting...");
-				await this.sleep(ranInt(1000, 2000));
-				this.main();
-				return;
-			}
+			if (this.captchaDetected || this.paused) return;
+
+			if (Date.now() - this.lastTime > 15_000) await this.aOrdinary();
+
 			if (command.condition) await command.action();
 			const delay = ranInt(15000, 22000) / commands.length;
-			await this.sleep(ranInt(delay - 3000, delay + 1200));
+			await this.sleep(ranInt(delay - 3000, delay + 2400));
 		}
 
 		await this.sleep(ranInt(2000, 5000))

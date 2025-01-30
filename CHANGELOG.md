@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [3.2.4] - 2025/01/31
+
+### Changed
+- Fixed the mess in 3.2.(1, 2, 3)
+- Fixed command duplications
+- Seperated hunt/battle commands (now run every ~15s independently)
+
+- TypeScript files are for reading, JavaScript for executing.
+
 ## [3.2.3] - 2025/01/30 
 ### Changed
 

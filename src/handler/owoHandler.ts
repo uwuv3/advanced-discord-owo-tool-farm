@@ -79,7 +79,7 @@ export const owoHandler = async (agent: BaseAgent) => {
             logger.info(`CAPTCHA HAS BEEN RESOLVED, ${agent.config.autoResume ? "RESTARTING SELFBOT" : "STOPPING SELFBOT"}...`)
             if (!agent.config.autoResume) process.exit(0)
             agent.captchaDetected = false
-          //  agent.main()
+            agent.main()
         }
 
         else if (/have been banned/.test(normalized)) {
