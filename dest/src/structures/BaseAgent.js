@@ -18,8 +18,8 @@ export class BaseAgent extends Client {
     owoID = "408785106942164992";
     prefix = "owo";
     owoCommands = shuffleArray([
-        ...Array(6).fill("hunt"),
-        ...Array(4).fill("battle"),
+        ...Array(5).fill("hunt"),
+        ...Array(5).fill("battle"),
     ]);
     questCommands = [];
     commands = new Collection();
@@ -43,6 +43,8 @@ export class BaseAgent extends Client {
     registerEvents = () => {
         this.on("ready", async () => {
             logger.info("Logged in as " + this.user?.displayName);
+            if (this.config.autoReload)
+                logger.info(`Config Loaded, Next config reload time: ${timeHandler(Date.now(), this.reloadTime, true)}`);
             if (this.config.adminID)
                 this.RETAINED_USERS_IDS.push(this.config.adminID);
             loadSweeper(this);
@@ -71,7 +73,7 @@ export class BaseAgent extends Client {
             }
         });
     };
-    send = async (message, { withPrefix = true, channel = this.activeChannel, delay = ranInt(120, 3700), } = {}) => {
+    send = async (message, { withPrefix = true, channel = this.activeChannel, delay = ranInt(120, 1700), } = {}) => {
         if (this.captchaDetected || this.paused)
             return;
         if (delay)
@@ -87,6 +89,7 @@ export class BaseAgent extends Client {
                 filter: m => m.author.id == this.owoID && m.content.includes(m.client.user?.username) && m.content.includes("You finished a quest"),
                 max: 1, time: 15_000
             }).once("collect", async (m) => {
+                logger.debug(m.content);
                 logger.debug("Quest completed! Reloading...");
                 logger.info("Quest completed! Reward:" + getQuestReward(m.content.split("earned: ")[1]));
                 logger.info("Deloading " + this.questCommands.length + " temporary features");
@@ -95,9 +98,11 @@ export class BaseAgent extends Client {
                 this.config.autoQuote = this.cache.autoQuote;
             });
         }
+        await this.sleep(ranInt(4800, 6200));
     };
     aReload = async (force = false) => {
         this.reloadTime = new Date().setUTCHours(0, ranInt(0, 30), ranInt(0, 59), ranInt(0, 1000));
+        logger.info(`Config Reloaded, Next config reload time: ${timeHandler(Date.now(), this.reloadTime, true)}`);
         [this.gem1, this.gem2, this.gem3] = Array(3).fill(undefined);
         this.config = this.cache;
         return true;
@@ -242,50 +247,46 @@ export class BaseAgent extends Client {
     };
     aGem = async (uGem1, uGem2, uGem3) => {
         await this.send("inv");
-        const filter = (msg) => msg.author.id == this.owoID &&
-            msg.content.includes(msg.guild?.members.me?.displayName) &&
-            msg.content.includes("Inventory");
-        this.activeChannel.createMessageCollector({ filter, max: 1, time: 15_000 })
-            .once("collect", async (msg) => {
-            this.inventory = msg.content.split("`");
-            if (this.config.autoFCrate && this.inventory.includes("049"))
-                await this.send("lb fabled");
-            await this.sleep(ranInt(4800, 6200));
-            if (this.config.autoCrate && this.inventory.includes("050")) {
-                await this.send("lb all");
-                await this.sleep(ranInt(4800, 6200));
-                return this.aGem(uGem1, uGem2, uGem3);
-            }
-            this.gem1 = this.inventory.filter((item) => /^05[1-7]$/.test(item)).map(Number);
-            this.gem2 = this.inventory.filter((item) => /^(06[5-9]|07[0-1])$/.test(item)).map(Number);
-            this.gem3 = this.inventory.filter((item) => /^07[2-8]$/.test(item)).map(Number);
-            const gems = [...this.gem1, ...this.gem2, ...this.gem3].length;
-            logger.info(`Found ${gems} type of Hunting gems in Inventory`);
-            if (gems == 0) {
-                this.config.autoGem = 0;
-                return;
-            }
-            const ugem1 = (uGem1 && this.gem1.length > 0) ? this.config.autoGem > 0
-                ? Math.max(...this.gem1) : Math.min(...this.gem1) : undefined;
-            const ugem2 = (uGem2 && this.gem2.length > 0) ? this.config.autoGem > 0
-                ? Math.max(...this.gem2) : Math.min(...this.gem2) : undefined;
-            const ugem3 = (uGem3 && this.gem3.length > 0) ? this.config.autoGem > 0
-                ? Math.max(...this.gem3) : Math.min(...this.gem3) : undefined;
-            if (!ugem1 && !ugem2 && !ugem3)
-                return;
-            await this.send(`use ${ugem1 ?? ""} ${ugem2 ?? ""} ${ugem3 ?? ""}`.replace(/\s+/g, " "));
+        await new Promise(resolve => {
+            const filter = (msg) => msg.author.id == this.owoID &&
+                msg.content.includes(msg.guild?.members.me?.displayName) &&
+                msg.content.includes("Inventory");
+            this.activeChannel.createMessageCollector({ filter, max: 1, time: 15_000 })
+                .once("collect", async (msg) => {
+                this.inventory = msg.content.split("`");
+                if (this.config.autoFCrate && this.inventory.includes("049"))
+                    await this.send("lb fabled");
+                if (this.config.autoCrate && this.inventory.includes("050")) {
+                    await this.send("lb all");
+                    return this.aGem(uGem1, uGem2, uGem3).then(() => resolve());
+                }
+                this.gem1 = this.inventory.filter((item) => /^05[1-7]$/.test(item)).map(Number);
+                this.gem2 = this.inventory.filter((item) => /^(06[5-9]|07[0-1])$/.test(item)).map(Number);
+                this.gem3 = this.inventory.filter((item) => /^07[2-8]$/.test(item)).map(Number);
+                const gems = [...this.gem1, ...this.gem2, ...this.gem3].length;
+                logger.info(`Found ${gems} type of Hunting gems in Inventory`);
+                if (gems == 0) {
+                    this.config.autoGem = 0;
+                    return resolve();
+                }
+                const ugem1 = (uGem1 && this.gem1.length > 0) ? this.config.autoGem > 0
+                    ? Math.max(...this.gem1) : Math.min(...this.gem1) : undefined;
+                const ugem2 = (uGem2 && this.gem2.length > 0) ? this.config.autoGem > 0
+                    ? Math.max(...this.gem2) : Math.min(...this.gem2) : undefined;
+                const ugem3 = (uGem3 && this.gem3.length > 0) ? this.config.autoGem > 0
+                    ? Math.max(...this.gem3) : Math.min(...this.gem3) : undefined;
+                if (!ugem1 && !ugem2 && !ugem3)
+                    return resolve();
+                await this.send(`use ${ugem1 ?? ""} ${ugem2 ?? ""} ${ugem3 ?? ""}`.replace(/\s+/g, " "));
+                resolve();
+            }).once("end", col => {
+                if (col.size === 0)
+                    resolve();
+            });
         });
     };
-    main = async () => {
-        if (this.captchaDetected || this.paused || Date.now() - this.lastTime < 15_000)
-            return;
+    aOrdinary = async () => {
         const command = this.owoCommands[ranInt(0, this.owoCommands.length)];
-        if (!command) {
-            logger.debug("No command found");
-            await this.sleep(ranInt(1000, 1000));
-            this.main();
-            return;
-        }
         await this.send(command);
         this.lastTime = Date.now();
         if (command.includes("h") && this.config.autoGem) {
@@ -302,6 +303,37 @@ export class BaseAgent extends Client {
                     await this.aGem(param1, param2, param3);
             });
         }
+    };
+    main = async () => {
+        if (this.captchaDetected || this.paused || Date.now() - this.lastTime < 15_000) {
+            logger.debug("Captcha detected or need time");
+            await this.sleep(ranInt(1000, 2000, true));
+            this.main();
+            return;
+        }
+        // const command = this.owoCommands[ranInt(0, this.owoCommands.length)];
+        // if (!command) {
+        // 	logger.debug("No command found");
+        // 	await this.sleep(ranInt(1000, 1000, true));
+        // 	this.main();
+        // 	return;
+        // }
+        // await this.send(command);
+        // this.lastTime = Date.now();
+        // if (command.includes("h") && this.config.autoGem) {
+        // 	const filter = (msg: Message<boolean>) =>
+        // 		msg.author.id == this.owoID &&
+        // 		msg.content.includes(msg.guild?.members.me?.displayName!) &&
+        // 		/hunt is empowered by| spent 5 .+ and caught a/.test(msg.content);
+        // 	this.activeChannel
+        // 		.createMessageCollector({ filter, max: 1, time: 15_000 })
+        // 		.once("collect", async (msg) => {
+        // 			let param1 = !msg.content.includes("gem1") && (!this.gem1 || this.gem1.length > 0);
+        // 			let param2 = !msg.content.includes("gem3") && (!this.gem2 || this.gem2.length > 0);
+        // 			let param3 = !msg.content.includes("gem4") && (!this.gem3 || this.gem3.length > 0);
+        // 			if (param1 || param2 || param3) await this.aGem(param1, param2, param3);
+        // 		});
+        // }
         let commands = [
             {
                 condition: this.config.autoPray.length > 0 &&
@@ -346,9 +378,15 @@ export class BaseAgent extends Client {
             }
         ];
         commands = shuffleArray(commands.concat(this.questCommands));
+        if (Date.now() - this.lastTime > 15_000)
+            await this.aOrdinary(); // I think we should leave it like this, it's not worth thinking about, any command will be used
         for (const command of commands) {
-            if (this.captchaDetected || this.paused)
+            if (this.captchaDetected || this.paused) {
+                logger.debug(this.captchaDetected ? "Captcha detected, waiting..." : "Paused, waiting...");
+                await this.sleep(ranInt(1000, 2000));
+                this.main();
                 return;
+            }
             if (command.condition)
                 await command.action();
             const delay = ranInt(15000, 22000) / commands.length;

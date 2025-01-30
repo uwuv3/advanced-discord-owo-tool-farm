@@ -45,8 +45,7 @@ On Termux, run the following commands:
 ```bash
 apt update
 apt upgrade
-apt install nodejs-lts
-apt install git
+apt install -y nodejs-lts git 
 ```
 
 ### Tool installation
@@ -150,6 +149,7 @@ npm start -- -- -i myfile.json // Trigger auto import and run with given myfile.
     -g, --generate [filename]
     -i, --import <filename>
     -d, --debug
+    -u, --update <boolean>
 ```
 
 ## Autorun.json example
@@ -210,7 +210,7 @@ For more information: [SECURITY.md](https://github.com/Kyou-Izumi/advanced-disco
 
 ✔ Attempt to solve captcha by using 3rd party captcha-api website
 
-✔ Solve captcha from OwO website (1 week usage for every 10 stars, further info in [discord server](https://discord.gg/Yr92g5Zx3e))
+✔ Solve captcha from OwO website (further info in [discord server](https://discord.gg/Yr92g5Zx3e))
 
 ✔ DMs selfbot account to send captcha answer to OwO (user -> selfbot -> OwO)
 
@@ -218,7 +218,7 @@ For more information: [SECURITY.md](https://github.com/Kyou-Izumi/advanced-disco
 
 ✔ Selfbot Commands
 
-✔ Send notification via webhook/DMs/Call
+✔ Send notification via Webhook/DMs/Call
 
 ✔ Cool Activities
 
@@ -242,7 +242,7 @@ For more information: [SECURITY.md](https://github.com/Kyou-Izumi/advanced-disco
 
 ✔ Automatic reload configuration daily
 
-✔ Automatic gamble (blackjack/slot/coinflip)
+✔ Automatic gamble (slot/coinflip) [blackjack remoed due to instability]
 
 ✔ ~~Automatic send/receive, upgrade trait huntbot~~ [removed]
 
@@ -252,6 +252,8 @@ For more information: [SECURITY.md](https://github.com/Kyou-Izumi/advanced-disco
 
 ✔ __Open source__ [halfly]
 
+✔ Automatic claim/handle quest and checklog [working on this]
+
 __-- Coming soon list --__
 
 ⬜ Selfbot captcha solving API (No longer 3rd party)
@@ -259,8 +261,6 @@ __-- Coming soon list --__
 ⬜ Huntbot captcha solving API (No longer 3rd party)
 
 ⬜ Automatic vote OwO on top.gg (in testing)
-
-⬜ Automatic claim/handle quest and checklog
 
 ⬜ Application with UI support
 

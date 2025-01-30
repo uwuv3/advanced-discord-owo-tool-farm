@@ -10,7 +10,7 @@ const stopCommand: Commands = {
         logger.info("User executed STOP command, shutting down...")
 
         consoleNotify(agent.totalCommands, agent.totalTexts, agent.readyTimestamp ?? 0)
-        process.exit(0)
+        return process.exit(0)
     }
 }
 

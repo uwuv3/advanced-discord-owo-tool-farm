@@ -69,7 +69,7 @@ export const owoHandler = async (agent) => {
             if (!agent.config.autoResume)
                 process.exit(0);
             agent.captchaDetected = false;
-            agent.main();
+            //  agent.main()
         }
         else if (/have been banned/.test(normalized)) {
             logger.alert("ACCOUNT HAS BEEN BANNED, STOPPING SELFBOT...");

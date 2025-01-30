@@ -1,6 +1,6 @@
 {
   "name": "advanced-discord-owo-tool-farm",
-  "version": "3.2.2",
+  "version": "3.2.3",
   "description": "Community Discord OwO Selfbot made in Vietnam [Copyright © Kyou-Izumi 2024]",
   "main": "dest/index.js",
   "type": "module",

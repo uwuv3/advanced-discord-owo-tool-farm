@@ -7,8 +7,6 @@ import { checkbox, confirm, input, select } from "@inquirer/prompts";
 import { logger } from "../utils/logger.js";
 import { Guild } from "discord.js-selfbot-v13";
 import { BaseAgent } from "./BaseAgent.js";
-import { checkUpdate } from "../feats/update.js";
-
 type DataFile = Record<string, Configuration>;
 
 export class ConfigManager {
@@ -438,8 +436,7 @@ export class ConfigManager {
     }
 
     public collectData = async () => {
-        console.clear()
-        await checkUpdate()
+        console.clear();
 
         if (Object.keys(this.rawData).length === 0) {
             const confirm = await this.trueFalse(

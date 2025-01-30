@@ -5,6 +5,7 @@ import { logger } from "./src/utils/logger.js";
 import { defaultConfig } from "./src/typings/typings.js";
 import { BaseAgent } from "./src/structures/BaseAgent.js";
 import { InquirerConfig } from "./src/structures/Inquirer.js";
+import { checkUpdate } from "./src/feats/update.js";
 const program = new Command();
 const agent = new BaseAgent();
 process.on("unhandledRejection", (error) => {
@@ -19,14 +20,16 @@ program
     .description("BKI Kyou Izumi Advanced Discord OwO Selfbot")
     .version(JSON.parse(fs.readFileSync("./package.json", "utf-8")).version || "3.0.0");
 program
-    .option("-g, --generate [filename]", "Generate new data file for autorun")
+    .option("-g, --generate <filename>", "Generate new data file for autorun")
     .option("-i, --import <filename>", "Import data file for autorun")
     .option("-d, --debug", "Enable debug mode")
+    .option("-u, --update", "Whether to update directly (without prompt)")
     .action(async () => {
     if (program.opts().debug) {
         logger.logger.level = "debug";
         logger.info("Debug mode enabled!");
     }
+    await checkUpdate(Boolean(program.opts()?.update));
     if (program.opts()?.generate) {
         const filename = typeof program.opts().generate === "string" ? program.opts().generate : "autorun.json";
         if (fs.existsSync(filename) && fs.statSync(filename).size > 0) {

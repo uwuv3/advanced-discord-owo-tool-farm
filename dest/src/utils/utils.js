@@ -3,7 +3,7 @@ import path from "node:path";
 import os from "node:os";
 import crypto from "node:crypto";
 export const mapInt = (number, fromMIN, fromMAX, toMIN, toMAX) => { return Math.floor(((number - fromMIN) / (fromMAX - fromMIN)) * (toMAX - toMIN) + toMIN); };
-export const ranInt = (min, max) => { return Math.floor(Math.random() * (max - min) + min); };
+export const ranInt = (min, max, abs = true) => { return abs ? Math.abs(Math.floor(Math.random() * (max - min) + min)) : Math.floor(Math.random() * (max - min) + min); };
 export const timeHandler = (startTime, endTime, removeDay = false) => {
     const ms = Math.abs(startTime - endTime);
     const sc = Math.round(ms % 86400000 % 3600000 % 60000 / 1000);
