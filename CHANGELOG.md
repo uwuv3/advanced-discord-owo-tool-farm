@@ -4,7 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [3.2.6] - 2025/01/31
+
+### Changed
+- Fixed config reloader 
+
 ## [3.2.5] - 2025/01/31
+
 ### Changed
 - Fixed the mess in 3.2.(1, 2, 3, 4)
 - Fixed command duplications

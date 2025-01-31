@@ -43,8 +43,6 @@ export class BaseAgent extends Client {
     registerEvents = () => {
         this.once("ready", async () => {
             logger.info("Logged in as " + this.user?.displayName);
-            if (this.config.autoReload)
-                logger.info(`Config Loaded, Next config reload time: ${timeHandler(Date.now(), this.reloadTime, true)}`);
             if (this.config.adminID)
                 this.RETAINED_USERS_IDS.push(this.config.adminID);
             loadSweeper(this);
@@ -84,7 +82,7 @@ export class BaseAgent extends Client {
         if (withPrefix)
             logger.sent(message);
         withPrefix ? this.totalCommands++ : this.totalTexts++;
-        if (this.config.autoQuest || this.cache.autoQuest) {
+        if (this.config.autoQuest) {
             this.activeChannel.createMessageCollector({
                 filter: m => m.author.id == this.owoID && m.content.includes(m.client.user?.username) && m.content.includes("You finished a quest"),
                 max: 1, time: 15_000
@@ -109,7 +107,7 @@ export class BaseAgent extends Client {
     };
     aDaily = async () => {
         await this.send("daily");
-        return this.config.autoDaily = false;
+        this.config.autoDaily = false;
     };
     aPray = async () => {
         this.toutPray = new Date().setMinutes(new Date().getMinutes() + 5, ranInt(0, 59));
@@ -139,15 +137,23 @@ export class BaseAgent extends Client {
         });
     };
     aQuote = async () => {
-        switch (this.config.autoQuote[ranInt(0, this.config.autoQuote.length)]) {
-            case "owo":
-                await this.send("owo", { withPrefix: false });
-                break;
-            case "quote":
-                await this.send(quotes[ranInt(0, quotes.length)], {
-                    withPrefix: false,
-                });
-                break;
+        try {
+            switch (this.config.autoQuote[ranInt(0, this.config.autoQuote.length)]) {
+                case "owo":
+                    await this.send("owo", { withPrefix: false });
+                    break;
+                case "quote":
+                    const quote = quotes[ranInt(0, quotes.length)];
+                    if (!quote)
+                        throw new Error("Failed to fetch quote");
+                    await this.send(quote, { withPrefix: false });
+                    break;
+            }
+        }
+        catch (err) {
+            logger.error(err);
+            logger.error("Failed to fetch quote, sending owo instead");
+            await this.send("owo", { withPrefix: false });
         }
     };
     aCookie = async () => {
@@ -352,7 +358,8 @@ export class BaseAgent extends Client {
                 action: this.aClover,
             }
         ];
-        commands = shuffleArray(commands.concat(this.questCommands));
+        // commands = shuffleArray(commands.concat(this.questCommands));
+        // console.log(Object.keys(this.config).map(k => ({ [k]: [this.cache[k], this.config[k]] })))
         for (const command of commands) {
             if (this.captchaDetected || this.paused)
                 return;
@@ -368,7 +375,7 @@ export class BaseAgent extends Client {
     };
     run = (config) => {
         this.config = config;
-        this.cache = config;
+        this.cache = structuredClone(config);
         this.registerEvents();
         this.emit("ready", this.user?.client);
     };

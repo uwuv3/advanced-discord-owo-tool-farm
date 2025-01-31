@@ -1,6 +1,6 @@
 {
   "name": "advanced-discord-owo-tool-farm",
-  "version": "3.2.5",
+  "version": "3.2.6",
   "description": "Community Discord OwO Selfbot made in Vietnam [Copyright © Kyou-Izumi 2024]",
   "main": "dest/index.js",
   "type": "module",
@@ -14,7 +14,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "setup": "npm install",
     "start": "node dest/index.js",
-    "build": "tsc && chmod u+x obfuscate.sh && node ./src/security/encrypt.js",
+    "build": "tsc && chmod u+x obfuscate.sh && ./obfuscate.sh && node ./src/security/encrypt.js",
     "dev": "npm run build && npm start"
   },
   "repository": {
