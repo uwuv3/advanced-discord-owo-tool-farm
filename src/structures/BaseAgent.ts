@@ -139,7 +139,7 @@ export class BaseAgent extends Client {
 
 	public aReload = async (force = false) => {
 		this.reloadTime = new Date().setUTCHours(
-			0,
+			24,
 			ranInt(0, 30),
 			ranInt(0, 59),
 			ranInt(0, 1000)
@@ -182,9 +182,10 @@ export class BaseAgent extends Client {
 	};
 
 	public aOther = async () => {
-		const command =
-			this.config.autoOther[ranInt(0, this.config.autoOther.length)];
-		await this.send(command);
+		const command = this.config.autoOther[ranInt(0, this.config.autoOther.length)];
+
+		this.send(command);
+
 		this.toutOther = new Date().setMinutes(
 			new Date().getMinutes() + 1,
 			ranInt(0, 59)
@@ -192,8 +193,7 @@ export class BaseAgent extends Client {
 
 		const filter = (m: Message<boolean>) =>
 			m.author.id == this.owoID &&
-			(m.content.startsWith("🚫 **|** ") ||
-				m.content.startsWith(":no_entry_sign: **|** "));
+			(m.content.startsWith("🚫 **|** ") || m.content.startsWith(":no_entry_sign: **|** "));
 		this.activeChannel
 			.createMessageCollector({ filter, max: 1, time: 15_000 })
 			.once("collect", () => {
@@ -260,7 +260,7 @@ export class BaseAgent extends Client {
 
 	// TODO: Implement aQuest
 	public aQuest = async () => {
-		await this.send("quest");
+		this.send("quest");
 		const filter: CollectorFilter<[Message<boolean>]> = (m) =>
 			m.author.id == this.owoID &&
 			m.embeds.length > 0 &&
@@ -315,7 +315,7 @@ export class BaseAgent extends Client {
 
 	// TODO: Implement aChecklist
 	public aChecklist = async () => {
-		await this.send("checklist");
+		this.send("checklist");
 		const filter: CollectorFilter<[Message<boolean>]> = (m) =>
 			m.author.id == this.owoID &&
 			m.embeds.length > 0 &&
@@ -331,7 +331,7 @@ export class BaseAgent extends Client {
 	}
 
 	public aGem = async (uGem1: boolean, uGem2: boolean, uGem3: boolean) => {
-		await this.send("inv");
+		this.send("inv");
 
 		await new Promise<void>(resolve => {
 			const filter: CollectorFilter<[Message<boolean>]> = (msg) =>
@@ -381,27 +381,29 @@ export class BaseAgent extends Client {
 	public aOrdinary = async () => {
 		const command = this.owoCommands[ranInt(0, this.owoCommands.length)];
 
-		await this.send(command);
+		this.send(command);
 		this.lastTime = Date.now();
 
-		if (command.includes("h") && this.config.autoGem) {
+		if (command.includes("h") && this.config.autoGem) await new Promise<void>(resolve => {
 			const filter = (msg: Message<boolean>) =>
 				msg.author.id == this.owoID &&
 				msg.content.includes(msg.guild?.members.me?.displayName!) &&
 				/hunt is empowered by| spent 5 .+ and caught a/.test(msg.content);
-			this.activeChannel
-				.createMessageCollector({ filter, max: 1, time: 15_000 })
+			this.activeChannel.createMessageCollector({ filter, max: 1, time: 15_000 })
 				.once("collect", async (msg) => {
 					let param1 = !msg.content.includes("gem1") && (!this.gem1 || this.gem1.length > 0);
 					let param2 = !msg.content.includes("gem3") && (!this.gem2 || this.gem2.length > 0);
 					let param3 = !msg.content.includes("gem4") && (!this.gem3 || this.gem3.length > 0);
 					if (param1 || param2 || param3) await this.aGem(param1, param2, param3);
+					resolve();
+				}).once("end", col => {
+					if (col.size === 0) resolve();
 				});
-		}
+		})
 	}
 
 	public main = async () => {
-		if (this.captchaDetected || this.paused || Date.now() - this.lastTime < 15_000) return;
+		if (this.captchaDetected || this.paused) return;
 
 		let commands: CommandCondition[] = [
 			{

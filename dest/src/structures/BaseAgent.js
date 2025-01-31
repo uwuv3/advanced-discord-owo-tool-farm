@@ -101,7 +101,7 @@ export class BaseAgent extends Client {
         await this.sleep(ranInt(4800, 6200));
     };
     aReload = async (force = false) => {
-        this.reloadTime = new Date().setUTCHours(0, ranInt(0, 30), ranInt(0, 59), ranInt(0, 1000));
+        this.reloadTime = new Date().setUTCHours(24, ranInt(0, 30), ranInt(0, 59), ranInt(0, 1000));
         logger.info(`Config Reloaded, Next config reload time: ${timeHandler(Date.now(), this.reloadTime, true)}`);
         [this.gem1, this.gem2, this.gem3] = Array(3).fill(undefined);
         this.config = this.cache;
@@ -128,11 +128,10 @@ export class BaseAgent extends Client {
     };
     aOther = async () => {
         const command = this.config.autoOther[ranInt(0, this.config.autoOther.length)];
-        await this.send(command);
+        this.send(command);
         this.toutOther = new Date().setMinutes(new Date().getMinutes() + 1, ranInt(0, 59));
         const filter = (m) => m.author.id == this.owoID &&
-            (m.content.startsWith("🚫 **|** ") ||
-                m.content.startsWith(":no_entry_sign: **|** "));
+            (m.content.startsWith("🚫 **|** ") || m.content.startsWith(":no_entry_sign: **|** "));
         this.activeChannel
             .createMessageCollector({ filter, max: 1, time: 15_000 })
             .once("collect", () => {
@@ -188,7 +187,7 @@ export class BaseAgent extends Client {
     ////////////////////// END OF QUEST COMMANDS SESSION ///////////////////////
     // TODO: Implement aQuest
     aQuest = async () => {
-        await this.send("quest");
+        this.send("quest");
         const filter = (m) => m.author.id == this.owoID &&
             m.embeds.length > 0 &&
             (m.embeds[0].author?.name.includes(m.guild?.members.me?.displayName) &&
@@ -232,7 +231,7 @@ export class BaseAgent extends Client {
     };
     // TODO: Implement aChecklist
     aChecklist = async () => {
-        await this.send("checklist");
+        this.send("checklist");
         const filter = (m) => m.author.id == this.owoID &&
             m.embeds.length > 0 &&
             (m.embeds[0].author?.name.includes(m.guild?.members.me?.displayName) ?? false) &&
@@ -245,7 +244,7 @@ export class BaseAgent extends Client {
         });
     };
     aGem = async (uGem1, uGem2, uGem3) => {
-        await this.send("inv");
+        this.send("inv");
         await new Promise(resolve => {
             const filter = (msg) => msg.author.id == this.owoID &&
                 msg.content.includes(msg.guild?.members.me?.displayName) &&
@@ -286,25 +285,29 @@ export class BaseAgent extends Client {
     };
     aOrdinary = async () => {
         const command = this.owoCommands[ranInt(0, this.owoCommands.length)];
-        await this.send(command);
+        this.send(command);
         this.lastTime = Date.now();
-        if (command.includes("h") && this.config.autoGem) {
-            const filter = (msg) => msg.author.id == this.owoID &&
-                msg.content.includes(msg.guild?.members.me?.displayName) &&
-                /hunt is empowered by| spent 5 .+ and caught a/.test(msg.content);
-            this.activeChannel
-                .createMessageCollector({ filter, max: 1, time: 15_000 })
-                .once("collect", async (msg) => {
-                let param1 = !msg.content.includes("gem1") && (!this.gem1 || this.gem1.length > 0);
-                let param2 = !msg.content.includes("gem3") && (!this.gem2 || this.gem2.length > 0);
-                let param3 = !msg.content.includes("gem4") && (!this.gem3 || this.gem3.length > 0);
-                if (param1 || param2 || param3)
-                    await this.aGem(param1, param2, param3);
+        if (command.includes("h") && this.config.autoGem)
+            await new Promise(resolve => {
+                const filter = (msg) => msg.author.id == this.owoID &&
+                    msg.content.includes(msg.guild?.members.me?.displayName) &&
+                    /hunt is empowered by| spent 5 .+ and caught a/.test(msg.content);
+                this.activeChannel.createMessageCollector({ filter, max: 1, time: 15_000 })
+                    .once("collect", async (msg) => {
+                    let param1 = !msg.content.includes("gem1") && (!this.gem1 || this.gem1.length > 0);
+                    let param2 = !msg.content.includes("gem3") && (!this.gem2 || this.gem2.length > 0);
+                    let param3 = !msg.content.includes("gem4") && (!this.gem3 || this.gem3.length > 0);
+                    if (param1 || param2 || param3)
+                        await this.aGem(param1, param2, param3);
+                    resolve();
+                }).once("end", col => {
+                    if (col.size === 0)
+                        resolve();
+                });
             });
-        }
     };
     main = async () => {
-        if (this.captchaDetected || this.paused || Date.now() - this.lastTime < 15_000)
+        if (this.captchaDetected || this.paused)
             return;
         let commands = [
             {
