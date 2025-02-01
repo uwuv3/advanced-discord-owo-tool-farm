@@ -1,6 +1,13 @@
 import { ClientOptions, DMChannel, Message, TextChannel } from "discord.js-selfbot-v13";
 import { BaseAgent } from "../structures/BaseAgent.js";
 
+import { Notification } from "node-notifier";
+import NotificationCenter from "node-notifier/notifiers/notificationcenter.js";
+import WindowsToaster from "node-notifier/notifiers/toaster.js";
+import WindowsBalloon from "node-notifier/notifiers/balloon.js";
+import NotifySend from "node-notifier/notifiers/notifysend.js";
+import Growl from "node-notifier/notifiers/growl.js";
+
 export type AgentOptions = {
     options?: ClientOptions;
 };
@@ -11,13 +18,20 @@ export type SendOptions = {
     delay?: number;
 };
 
+export type popupOptions = Notification
+    | NotificationCenter.Notification
+    | WindowsToaster.Notification
+    | WindowsBalloon.Notification
+    | NotifySend.Notification
+    | Growl.Notification;
+
 export type NotifierCondition = {
     condition: Configuration["wayNotify"][number]
     callback: () => any
 }
 
 export type CommandCondition = {
-    condition: boolean;
+    condition: () => boolean;
     action: () => any;
 };
 
@@ -27,7 +41,7 @@ export type Commands = {
     execute: (agent: BaseAgent, message: Message, ...args: string[]) => any;
 };
 
-export type QuestTypes =  "xp" | "hunt" | "battle" | "owo" | "action" | "gamble" | "unsupported"
+export type QuestTypes = "xp" | "hunt" | "battle" | "owo" | "action" | "gamble" | "unsupported"
 
 export const defaultConfig: Configuration = {
     username: "",
@@ -63,7 +77,7 @@ export interface Configuration {
     token: string
     guildID: string
     channelID: string[]
-    wayNotify: Array<"webhook" | "dms" | "call" | "music">
+    wayNotify: Array<"webhook" | "dms" | "call" | "music" | "popup">
     webhookURL?: string
     musicPath?: string
     prefix?: string

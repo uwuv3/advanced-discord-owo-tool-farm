@@ -138,6 +138,10 @@ export class ConfigManager {
             message: "Select how you want to be notified when selfbot receives a captcha: ",
             choices: [
                 {
+                    name: "[BETA] Popup Notification",
+                    value: "popup",
+                },
+                {
                     name: "Music",
                     value: "music",
                 },

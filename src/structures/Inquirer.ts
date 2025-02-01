@@ -155,6 +155,10 @@ export class ConfigManager {
             message: "Select how you want to be notified when selfbot receives a captcha: ",
             choices: [
                 {
+                    name: "[BETA] Popup Notification",
+                    value: "popup" as Configuration["wayNotify"][number],
+                },
+                {
                     name: "Music",
                     value: "music" as Configuration["wayNotify"][number],
                 },

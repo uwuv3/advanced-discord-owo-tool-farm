@@ -1,7 +1,59 @@
 import { MessageEmbed, WebhookClient } from "discord.js-selfbot-v13";
-import { spawn } from "child_process";
-import { musicCommand } from "../utils/utils.js";
+import { exec, spawn } from "child_process";
 import { logger } from "../utils/logger.js";
+import notifier from "node-notifier";
+import path from "path";
+const createMusic = (musicPath) => {
+    let command = "";
+    switch (process.platform) {
+        case "win32":
+            command = `start ""`;
+            break;
+        case "linux":
+            command = `xdg-open`;
+            break;
+        case "darwin":
+            command = `afplay`;
+            break;
+        case "android":
+            command = `termux-media-player play`;
+            break;
+        default: throw new Error("Unsupported Platform");
+    }
+    command += ` "${musicPath}"`;
+    return spawn(command, { shell: true, detached: true }).unref();
+};
+const createPopUp = async (timestamp = Date.now(), url) => {
+    return notifier.notify({
+        title: "CAPTCHA DETECTED!",
+        message: "Please solve the captcha before: " + new Date(timestamp + 10 * 60 * 1000).toLocaleString(),
+        icon: path.resolve("doc/B2KI.png"),
+        wait: true,
+        ...(() => {
+            switch (process.platform) {
+                case "win32":
+                    return {
+                        appID: "[B2KI] Advanced Discord OwO Tool Farm",
+                        id: 1266,
+                        sound: "Notification.Looping.Call",
+                    };
+                case "darwin":
+                    return {
+                        sound: true,
+                    };
+                default:
+                    return {};
+            }
+        })()
+    }, (err, response, metadata) => {
+        if (err) {
+            logger.error("Error showing popup notification");
+            logger.error(err);
+        }
+        if (response != "dismissed" && response != "timeout")
+            exec(`start ${url}`).unref();
+    });
+};
 export class Notifier {
     message;
     config;
@@ -21,7 +73,7 @@ export class Notifier {
         if (!this.config.musicPath)
             return logger.debug("Music path not found, skipping sound notification");
         try {
-            spawn(musicCommand(this.config.musicPath), { shell: true, detached: true }).unref();
+            createMusic(this.config.musicPath);
         }
         catch (error) {
             logger.error("Error playing sound notification");
@@ -34,7 +86,7 @@ export class Notifier {
         try {
             const webhook = new WebhookClient({ url: this.config.webhookURL });
             const embed = new MessageEmbed()
-                .setTitle("Captcha Detected!")
+                .setTitle("CAPTCHA DETECTED!")
                 .setURL(this.message.url)
                 .setDescription("**Status**: " + (this.status ? "✅ **SOLVED**" : "⚠ ⚠ **UNSOLVED** ⚠ ⚠"))
                 .addFields([
@@ -98,6 +150,31 @@ export class Notifier {
             logger.error(error);
         }
     };
+    popUp = async () => {
+        try {
+            const message = "CAPTCHA DETECTED! Please solve the captcha before: " + new Date(this.message.createdTimestamp + 10 * 60 * 1000).toLocaleString();
+            if (process.platform == "android") {
+                return spawn("termux-notification", [
+                    "--title", "CAPTCHA DETECTED!",
+                    "--content", message,
+                    "--priority", "high",
+                    "--sound", "--ongoing",
+                    "--vibrate", "1000,1000,1000,1000,1000",
+                    "--id", "1266",
+                    "--action", `termux-open-url ${this.message.url}`,
+                ]).unref();
+            }
+            else if (process.platform == "win32" || process.platform == "darwin" || process.platform == "linux") {
+                return createPopUp(this.message.createdTimestamp, this.message.url.replace("https", "discord"));
+            }
+            else
+                throw new Error("Unsupported Platform");
+        }
+        catch (error) {
+            logger.error("Error showing popup notification");
+            logger.error(error);
+        }
+    };
     notify = async () => {
         const wayNotify = this.config.wayNotify;
         logger.debug("Enabled notifications: " + wayNotify.join(", "));
@@ -118,6 +195,10 @@ export class Notifier {
                 condition: "call",
                 callback: this.callDM
             },
+            {
+                condition: "popup",
+                callback: this.popUp
+            }
         ];
         for (const { condition, callback } of notifier)
             if (wayNotify.includes(condition))

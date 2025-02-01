@@ -49,25 +49,6 @@ export const copyDirectory = (sourceDir, destDir) => {
             fs.copyFileSync(sourcePath, destPath);
     }
 };
-export const musicCommand = (musicPath) => {
-    let command = "";
-    switch (process.platform) {
-        case "win32":
-            command = `start ""`;
-            break;
-        case "linux":
-            command = `xdg-open`;
-            break;
-        case "darwin":
-            command = `afplay`;
-            break;
-        case "android":
-            command = `termux-media-player play`;
-            break;
-        default: throw new Error("Unsupported Platform");
-    }
-    return command += ` "${musicPath}"`;
-};
 export const getQuestType = (name) => {
     const questTypeLookup = {
         "xp": "xp",
@@ -99,7 +80,7 @@ export const getQuestType = (name) => {
 };
 export const loadQuestCommand = (callback) => {
     return {
-        condition: true,
+        condition: () => true,
         action: callback
     };
 };

@@ -29,7 +29,7 @@ export class BaseAgent extends Client {
     coutSleep = ranInt(38, 92);
     lastTime = 0;
     sleepTime = mapInt(this.coutSleep, 38, 92, 150_000, 1_000_000);
-    reloadTime = new Date().setUTCHours(24, ranInt(0, 30), ranInt(0, 59));
+    reloadTime = Date.now() + 60 * 1000; //new Date().setUTCHours(24, ranInt(0, 30), ranInt(0, 59));
     toutOther = 0;
     toutPray = 0;
     inventory = [];
@@ -51,6 +51,14 @@ export class BaseAgent extends Client {
             if (this.config.prefix)
                 this.commands = await loadCommands();
             this.activeChannel = this.channels.cache.get(this.config.channelID[0]);
+            logger.info(`Loaded ${this.commands.size} commands`);
+            logger.info(`Running on channel: ${this.activeChannel.name}`);
+            if (this.config.channelID.length > 1)
+                logger.info(`Next channel change after: ${this.coutChannel} commands`);
+            if (this.config.autoSleep)
+                logger.info(`Next sleep after: ${this.coutSleep} commands (Duration: ${timeHandler(0, this.sleepTime, true)})`);
+            if (this.config.autoReload)
+                logger.info(`Next config reload time: ${timeHandler(Date.now(), this.reloadTime, true)}`);
             this.main();
         });
         owoHandler(this);
@@ -102,7 +110,7 @@ export class BaseAgent extends Client {
         this.reloadTime = new Date().setUTCHours(24, ranInt(0, 30), ranInt(0, 59), ranInt(0, 1000));
         logger.info(`Config Reloaded, Next config reload time: ${timeHandler(Date.now(), this.reloadTime, true)}`);
         [this.gem1, this.gem2, this.gem3] = Array(3).fill(undefined);
-        this.config = this.cache;
+        this.config = structuredClone(this.cache);
         return true;
     };
     aDaily = async () => {
@@ -116,13 +124,16 @@ export class BaseAgent extends Client {
     cChannel = async () => {
         this.activeChannel = this.channels.cache.get(this.config.channelID[ranInt(0, this.config.channelID.length)]);
         this.coutChannel += ranInt(17, 51);
+        logger.info(`Switched to channel: ${this.activeChannel.name}`);
+        logger.info(`Next channel change after: ${this.coutChannel} commands`);
     };
     aSleep = async () => {
-        logger.info("Pausing for " + timeHandler(0, this.sleepTime, true));
+        logger.info("Sleeping for: " + timeHandler(0, this.sleepTime, true));
         await this.sleep(this.sleepTime);
         const nextShift = ranInt(38, 92);
         this.coutSleep += nextShift;
         this.sleepTime = mapInt(nextShift, 38, 92, 150_000, 1_000_000);
+        logger.info(`Next sleep after: ${nextShift} commands (Duration: ${timeHandler(0, this.sleepTime, true)})`);
     };
     aOther = async () => {
         const command = this.config.autoOther[ranInt(0, this.config.autoOther.length)];
@@ -317,55 +328,55 @@ export class BaseAgent extends Client {
             return;
         let commands = [
             {
-                condition: this.config.autoPray.length > 0 &&
+                condition: () => this.config.autoPray.length > 0 &&
                     Date.now() - this.toutPray >= 360_000,
                 action: this.aPray,
             },
             {
-                condition: this.config.autoDaily,
+                condition: () => this.config.autoDaily,
                 action: this.aDaily
             },
             {
-                condition: this.config.autoOther.length > 0 &&
+                condition: () => this.config.autoOther.length > 0 &&
                     Date.now() - this.toutOther >= 60_000,
                 action: this.aOther,
             },
             {
-                condition: this.config.autoSleep &&
+                condition: () => this.config.autoSleep &&
                     this.totalCommands >= this.coutSleep,
                 action: this.aSleep,
             },
             {
-                condition: this.config.channelID.length > 1 &&
+                condition: () => this.config.channelID.length > 1 &&
                     this.totalCommands >= this.coutChannel,
                 action: this.cChannel,
             },
             {
-                condition: this.config.autoReload &&
+                condition: () => this.config.autoReload &&
                     Date.now() > this.reloadTime,
                 action: this.aReload,
             },
             {
-                condition: this.config.autoQuote.length > 0,
+                condition: () => this.config.autoQuote.length > 0,
                 action: this.aQuote,
             },
             {
-                condition: this.config.autoCookie,
+                condition: () => this.config.autoCookie,
                 action: this.aCookie,
             },
             {
-                condition: this.config.autoClover,
+                condition: () => this.config.autoClover,
                 action: this.aClover,
             }
         ];
-        // commands = shuffleArray(commands.concat(this.questCommands));
+        commands = shuffleArray(commands.concat(this.questCommands));
         // console.log(Object.keys(this.config).map(k => ({ [k]: [this.cache[k], this.config[k]] })))
         for (const command of commands) {
             if (this.captchaDetected || this.paused)
                 return;
             if (Date.now() - this.lastTime > 15_000)
                 await this.aOrdinary();
-            if (command.condition)
+            if (command.condition())
                 await command.action();
             const delay = ranInt(15000, 22000) / commands.length;
             await this.sleep(ranInt(delay - 3000, delay + 2400));

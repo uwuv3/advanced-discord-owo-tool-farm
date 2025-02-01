@@ -54,18 +54,6 @@ export const copyDirectory = (sourceDir: string, destDir: string) => {
     }
 }
 
-export const musicCommand = (musicPath: string) => {
-    let command = ""
-    switch (process.platform) {
-        case "win32": command = `start ""`; break;
-        case "linux": command = `xdg-open`; break;
-        case "darwin": command = `afplay`; break;
-        case "android": command = `termux-media-player play`; break;
-        default: throw new Error("Unsupported Platform");
-    }
-    return command += ` "${musicPath}"`
-}
-
 export const getQuestType = (name: string): QuestTypes => {
     const questTypeLookup: Record<string, QuestTypes> = {
         "xp": "xp",
@@ -99,7 +87,7 @@ export const getQuestType = (name: string): QuestTypes => {
 
 export const loadQuestCommand = (callback: CommandCondition["action"]): CommandCondition => {
     return {
-        condition: true,
+        condition: () => true,
         action: callback
     }
 }
