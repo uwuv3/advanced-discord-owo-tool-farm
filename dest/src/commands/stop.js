@@ -6,7 +6,7 @@ const stopCommand = {
     execute: (agent, message, ...args) => {
         message.reply("Shutting down...");
         logger.info("User executed STOP command, shutting down...");
-        consoleNotify(agent.totalCommands, agent.totalTexts, agent.readyTimestamp ?? 0);
+        consoleNotify(agent.totalCommands, agent.totalTexts, agent.totalCaptcha, agent.readyTimestamp ?? 0);
         return process.exit(0);
     }
 };

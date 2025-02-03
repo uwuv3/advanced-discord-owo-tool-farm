@@ -92,7 +92,7 @@ export class Notifier {
                 .addFields([
                 { name: "Captcha type: ", value: this.attachmentUrl ? `[Image Captcha](${this.message.url})` : "[Link Captcha](https://owobot.com/captcha)" }
             ])
-                .setColor("#00ddff")
+                .setColor(this.status ? "GREEN" : "RED")
                 .setFooter({ text: "Copyright B2KI ADOS © since 2022", iconURL: this.message.guild?.iconURL({ format: "png" }) ?? "https://i.imgur.com/EqChQK1.png" })
                 .setTimestamp();
             if (this.attachmentUrl)

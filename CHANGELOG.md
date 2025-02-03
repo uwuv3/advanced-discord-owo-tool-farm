@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [3.2.8] - 2025/02/03
+
+### Added
+- Total captcha resolved/unsolved
+
+### Changed
+- Fixed info command
+- Fixed reload loop
+
 ## [3.2.7] - 2025/02/01
 
 ### Added

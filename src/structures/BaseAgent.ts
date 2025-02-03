@@ -30,6 +30,10 @@ export class BaseAgent extends Client {
 
 	totalCommands = 0;
 	totalTexts = 0;
+	totalCaptcha = {
+		resolved: 0,
+		unsolved: 0,
+	}
 
 	owoID = "408785106942164992";
 	prefix = "owo";

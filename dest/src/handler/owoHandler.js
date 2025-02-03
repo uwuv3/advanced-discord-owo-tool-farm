@@ -15,7 +15,7 @@ export const owoHandler = async (agent) => {
         const normalized = message.content.replace(/[\p{Cf}\p{Cc}\p{Zl}\p{Zp}\p{Cn}]/gu, "");
         if (/are you a real human|(check|verify) that you are.{1,3}human!/img.test(normalized)) {
             logger.alert(`Captcha Found in channel: ${message.channel.type == "DM" ? message.channel.recipient.displayName : message.channel.name}!`);
-            consoleNotify(agent.totalCommands, agent.totalTexts, agent.readyTimestamp ?? 0);
+            consoleNotify(agent.totalCommands, agent.totalTexts, agent.totalCaptcha, agent.readyTimestamp ?? 0);
             if (!agent.config.autoResume && !agent.config.captchaAPI) {
                 if (agent.config.wayNotify.length)
                     await selfbotNotify(message, agent.config);
@@ -55,12 +55,14 @@ export const owoHandler = async (agent) => {
                     await decryptCaptcha(message, agent.config);
                 else
                     throw new Error("No Image/Link Detected in Captcha Message");
+                agent.totalCaptcha.resolved++;
                 selfbotNotify(message, agent.config, true);
             }
             catch (error) {
                 logger.warn("Error Solving Captcha: " + error.message);
                 logger.alert("Attempt to solve captcha failed!");
                 logger.info("WAITING FOR THE CAPTCHA TO BE RESOLVED TO RESTART...");
+                agent.totalCaptcha.unsolved++;
                 selfbotNotify(message, agent.config);
             }
         }
@@ -80,7 +82,7 @@ export const owoHandler = async (agent) => {
                 await agent.send("sell all");
             else {
                 logger.warn("Cowoncy ran out! Stoping Selfbot...");
-                consoleNotify(agent.totalCommands, agent.totalTexts, agent.readyTimestamp ?? 0);
+                consoleNotify(agent.totalCommands, agent.totalTexts, agent.totalCaptcha, agent.readyTimestamp ?? 0);
                 process.exit(-1);
             }
         }
