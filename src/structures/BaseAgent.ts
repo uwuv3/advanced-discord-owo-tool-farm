@@ -144,16 +144,21 @@ export class BaseAgent extends Client {
 	};
 
 	public aReload = async (force = false) => {
-		this.reloadTime = new Date().setUTCHours(
-			24,
-			ranInt(0, 30),
-			ranInt(0, 59),
-			ranInt(0, 1000)
-		);
-		logger.info(`Config Reloaded, Next config reload time: ${timeHandler(Date.now(), this.reloadTime, true)}`);
-		[this.gem1, this.gem2, this.gem3] = Array<undefined>(3).fill(undefined);
-		this.config = structuredClone(this.cache);
-		return true;
+		try {
+			this.reloadTime = new Date().setUTCHours(
+				24,
+				ranInt(0, 30),
+				ranInt(0, 59),
+				ranInt(0, 1000)
+			);
+			[this.gem1, this.gem2, this.gem3] = Array<undefined>(3).fill(undefined);
+			this.config = structuredClone(this.cache);
+			logger.info(`Config Reloaded, Next config reload time: ${timeHandler(Date.now(), this.reloadTime, true)}`);
+			return true;
+		} catch (error) {
+			logger.error(`Failed to reload config: ${error}`);
+			return false;
+		}
 	};
 
 	public aDaily = async () => {
