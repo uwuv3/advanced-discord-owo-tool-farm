@@ -3,7 +3,7 @@ import aliases from "../utils/commandAliases.js";
 import { logger } from "../utils/logger.js";
 export async function autoGem(useGem1, useGem2, useGem3) {
     let randomCommand = getRandom(aliases.COMMAND_INVENTORY) ?? "inv";
-    this.send("inv");
+    this.send(randomCommand);
     const filter = (msg) => msg.author.id == this.owoID && findUserName(msg) && isInventoryCommand(msg);
     await Promise.all([
         new Promise(async (resolve) => {
@@ -45,7 +45,7 @@ export async function autoGem(useGem1, useGem2, useGem3) {
                     : undefined;
                 if (!ugem1 && !ugem2 && !ugem3)
                     return resolve();
-                await this.send(`use ${ugem1 ?? ""} ${ugem2 ?? ""} ${ugem3 ?? ""}`.replace(/\s+/g, " "));
+                await this.send(`${getRandom(aliases.COMMAND_EQUIP) ?? "use"} ${ugem1 ?? ""} ${ugem2 ?? ""} ${ugem3 ?? ""}`.replace(/\s+/g, " "));
             }
             resolve();
         }),

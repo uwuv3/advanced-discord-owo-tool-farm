@@ -5,7 +5,7 @@ import aliases from "../utils/commandAliases.js";
 import { logger } from "../utils/logger.js";
 export async function autoGem(this: BaseAgent, useGem1: boolean, useGem2: boolean, useGem3: boolean) {
   let randomCommand = getRandom(aliases.COMMAND_INVENTORY) ?? "inv"
-  this.send("inv");
+  this.send(randomCommand);
   const filter = (msg: Message<boolean>) => msg.author.id == this.owoID && findUserName(msg) && isInventoryCommand(msg);
 
   await Promise.all([
@@ -55,7 +55,7 @@ export async function autoGem(this: BaseAgent, useGem1: boolean, useGem2: boolea
             : undefined;
 
         if (!ugem1 && !ugem2 && !ugem3) return resolve();
-        await this.send(`use ${ugem1 ?? ""} ${ugem2 ?? ""} ${ugem3 ?? ""}`.replace(/\s+/g, " "));
+        await this.send(`${getRandom(aliases.COMMAND_EQUIP) ?? "use"} ${ugem1 ?? ""} ${ugem2 ?? ""} ${ugem3 ?? ""}`.replace(/\s+/g, " "));
       }
       resolve();
     }),

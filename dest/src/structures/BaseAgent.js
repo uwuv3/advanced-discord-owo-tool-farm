@@ -31,7 +31,7 @@ export class BaseAgent extends Client {
     coutSleep = ranInt(38, 92);
     lastTime = 0;
     sleepTime = mapInt(this.coutSleep, 38, 92, 150_000, 1_000_000);
-    reloadTime = Date.now() + 60 * 1000; //new Date().setUTCHours(24, ranInt(0, 30), ranInt(0, 59));
+    reloadTime = new Date().setUTCHours(24, ranInt(0, 30), ranInt(0, 59));
     toutOther = 0;
     toutPray = 0;
     inventory = [];
