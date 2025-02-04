@@ -1,4 +1,5 @@
 import { Commands } from "../typings/typings.js"
+//@ts-ignore
 import decryptCaptcha from "../security/decrypt.js"
 
 const solveCommand: Commands = {

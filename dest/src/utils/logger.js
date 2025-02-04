@@ -14,7 +14,8 @@ class CustomLogger {
             sent: chalk.greenBright("[SENT]"),
             debug: chalk.blackBright("[DEBUG]"),
         };
-        const consoleFormat = printf(({ level, message, timestamp, stack }) => {
+        const consoleFormat = printf((info) => {
+            const { level, message, timestamp, stack } = info;
             const formattedTimestamp = chalk.bgYellow.black(timestamp);
             const levelLabel = levelFormats[level] || chalk.magenta(`[${level.toUpperCase()}]`);
             return stack
@@ -36,7 +37,7 @@ class CustomLogger {
                 info: 4,
                 data: 5,
                 sent: 6,
-                debug: 7
+                debug: 7,
             },
             format: combine(timestamp({ format: "YYYY-MM-DD HH:mm:ss" }), errors({ stack: true })),
             transports: [
@@ -49,12 +50,12 @@ class CustomLogger {
                     maxsize: 1024 * 1024 * 10,
                     maxFiles: 5,
                     zippedArchive: true,
-                    format: combine(uncolorize(), fileFormat)
-                })
+                    format: combine(uncolorize(), fileFormat),
+                }),
             ],
             exitOnError: false,
             handleRejections: true,
-            handleExceptions: true
+            handleExceptions: true,
         });
     }
     static getInstance() {

@@ -1,3 +1,4 @@
+//@ts-ignore
 import decryptCaptcha from "../security/decrypt.js";
 const solveCommand = {
     name: "solve",

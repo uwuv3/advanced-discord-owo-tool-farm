@@ -4,6 +4,7 @@ import { BaseAgent } from "../structures/BaseAgent.js";
 import { logger } from "../utils/logger.js";
 import { consoleNotify, selfbotNotify } from "../feats/notify.js";
 import { solveImage } from "../feats/captcha.js";
+//@ts-ignore
 import decryptCaptcha from "../security/decrypt.js";
 
 export const owoHandler = async (agent: BaseAgent) => {

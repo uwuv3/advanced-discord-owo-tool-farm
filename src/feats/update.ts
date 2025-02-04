@@ -18,7 +18,7 @@ class selfUpdate {
         this.checkUpdate = this.checkUpdate.bind(this)
     }
 
-    public async checkUpdate() {
+    public async checkUpdate(autoUpdate:boolean = false) {
         logger.info("Checking for update...")
 
         const { version: currentVersion } = JSON.parse(fs.readFileSync(path.join(process.cwd(), "package.json"), "utf-8"))
@@ -26,10 +26,9 @@ class selfUpdate {
             headers: this.baseHeaders
         })
         if (currentVersion < latestVersion) {
+            console.clear();
             logger.info(`New version available: v${latestVersion} (current: v${currentVersion})`) 
-
-
-            const result = await confirm({ 
+            const result = autoUpdate ? true : await confirm({ 
                 message: "Would you like to update?", 
                 default: true
             }); 

@@ -2,13 +2,18 @@ import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
 import crypto from "node:crypto";
-export const mapInt = (number, fromMIN, fromMAX, toMIN, toMAX) => { return Math.floor(((number - fromMIN) / (fromMAX - fromMIN)) * (toMAX - toMIN) + toMIN); };
-export const ranInt = (min, max, abs = true) => { return abs ? Math.abs(Math.floor(Math.random() * (max - min) + min)) : Math.floor(Math.random() * (max - min) + min); };
+export const mapInt = (number, fromMIN, fromMAX, toMIN, toMAX) => {
+    return Math.floor(((number - fromMIN) / (fromMAX - fromMIN)) * (toMAX - toMIN) + toMIN);
+};
+export const findUserName = (msg) => msg.content.includes(msg.guild?.members.me?.displayName) || msg.embeds.some(embed => embed.author?.name.includes(msg.guild?.members.me?.displayName));
+export const ranInt = (min, max, abs = true) => {
+    return abs ? Math.abs(Math.floor(Math.random() * (max - min) + min)) : Math.floor(Math.random() * (max - min) + min);
+};
 export const timeHandler = (startTime, endTime, removeDay = false) => {
     const ms = Math.abs(startTime - endTime);
-    const sc = Math.round(ms % 86400000 % 3600000 % 60000 / 1000);
-    const mn = Math.floor(ms % 86400000 % 3600000 / 60000);
-    const hr = Math.floor(ms % 86400000 / 3600000);
+    const sc = Math.round((((ms % 86400000) % 3600000) % 60000) / 1000);
+    const mn = Math.floor(((ms % 86400000) % 3600000) / 60000);
+    const hr = Math.floor((ms % 86400000) / 3600000);
     const dy = Math.floor(ms / 86400000);
     return (removeDay ? "" : dy + (dy > 1 ? " days " : " day ")) + hr + ":" + mn + ":" + sc;
 };
@@ -19,6 +24,9 @@ export const shuffleArray = (array) => {
     }
     return array;
 };
+export const getRandom = (array) => {
+    return array[ranInt(0, array.length)];
+};
 export const getFiles = (dir, suffix) => {
     const files = fs.readdirSync(dir, {
         withFileTypes: true
@@ -26,10 +34,7 @@ export const getFiles = (dir, suffix) => {
     let commandFiles = [];
     for (const file of files) {
         if (file.isDirectory()) {
-            commandFiles = [
-                ...commandFiles,
-                ...getFiles(path.join(dir, file.name), suffix)
-            ];
+            commandFiles = [...commandFiles, ...getFiles(path.join(dir, file.name), suffix)];
         }
         else if (file.name.endsWith(suffix))
             commandFiles.push(path.join(dir, file.name));
@@ -51,12 +56,12 @@ export const copyDirectory = (sourceDir, destDir) => {
 };
 export const getQuestType = (name) => {
     const questTypeLookup = {
-        "xp": "xp",
-        "hunt": "hunt",
-        "battle": "battle",
+        xp: "xp",
+        hunt: "hunt",
+        battle: "battle",
         "'owo'": "owo",
-        "gamble": "gamble",
-        "action command on someone": "action",
+        gamble: "gamble",
+        "action command on someone": "action"
     };
     for (const [key, value] of Object.entries(questTypeLookup)) {
         if (name.includes(key))
@@ -85,9 +90,8 @@ export const loadQuestCommand = (callback) => {
     };
 };
 export const getHWID = () => {
-    return crypto.createHash("sha256").update([
-        os.platform(),
-        os.hostname(),
-        os.userInfo().username,
-    ].join("")).digest("hex");
+    return crypto
+        .createHash("sha256")
+        .update([os.platform(), os.hostname(), os.userInfo().username].join(""))
+        .digest("hex");
 };

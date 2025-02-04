@@ -5,7 +5,7 @@
   "main": "dest/index.js",
   "type": "module",
   "engines": {
-    "node": ">=16"
+    "node": ">=21"
   },
   "config": {
     "signature": "Q29weXJpZ2h0IMKpIEt5b3UtSXp1bWkgW0V0ZXJuaXR5eXldIHggQWlrby1jaGFuLWFpIFtFbGxpZV0gMjAyMSAtIDIwMjQ="
@@ -15,7 +15,8 @@
     "setup": "npm install",
     "start": "node dest/index.js",
     "build": "tsc && chmod u+x obfuscate.sh && ./obfuscate.sh && node ./src/security/encrypt.js",
-    "dev": "npm run build && npm start"
+    "dev": "npm run build && npm start",
+    "dev:start" : "tsc && npm start -- -d"
   },
   "repository": {
     "type": "git",

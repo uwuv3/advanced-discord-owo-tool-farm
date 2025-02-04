@@ -1,3 +1,4 @@
+export const owo_uwu = ["owo", "uwu"];
 export const quotes = [
     "I love you the more in that I believe you had liked me for my own sake and for nothing else.",
     "Life is divided into the horrible and the miserable.",

@@ -443,7 +443,6 @@ export class ConfigManager {
 
     public collectData = async () => {
         console.clear();
-        await checkUpdate();
 
         if (Object.keys(this.rawData).length === 0) {
             const confirm = await this.trueFalse(

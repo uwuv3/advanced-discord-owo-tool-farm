@@ -3,7 +3,6 @@ import path from "node:path";
 import os from "node:os";
 import { checkbox, confirm, input, select } from "@inquirer/prompts";
 import { logger } from "../utils/logger.js";
-import { checkUpdate } from "../feats/update.js";
 export class ConfigManager {
     folderPath = path.resolve(os.homedir(), "b2ki-ados");
     dataPath = path.resolve(this.folderPath, "data.json");
@@ -411,7 +410,6 @@ export class ConfigManager {
     };
     collectData = async () => {
         console.clear();
-        await checkUpdate();
         if (Object.keys(this.rawData).length === 0) {
             const confirm = await this.trueFalse("Copyright 2021-2025 © Eternity_VN [Kyou Izumi] x aiko-chan-ai [Elysia]. All rights reserved."
                 + "\nMade by Vietnamese, From Github with ❤️"
