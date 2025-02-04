@@ -250,7 +250,6 @@ export class BaseAgent extends Client {
             });
         });
     };
-    autoGem = async (useGem1, useGem2, useGem3) => await actions.autoGem.bind(this)(useGem1, useGem2, useGem3);
     main = async () => {
         if (this.captchaDetected || this.paused)
             return;

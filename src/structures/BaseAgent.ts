@@ -297,8 +297,6 @@ export class BaseAgent extends Client {
         });
     });
   };
-  autoGem = async (useGem1: boolean, useGem2: boolean, useGem3: boolean) =>
-    await actions.autoGem.bind(this)(useGem1, useGem2, useGem3);
   public main = async () => {
     if (this.captchaDetected || this.paused) return;
     let commands: CommandCondition[] = [

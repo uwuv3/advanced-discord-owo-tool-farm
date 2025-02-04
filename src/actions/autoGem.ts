@@ -3,9 +3,10 @@ import { BaseAgent } from "../structures/BaseAgent.js";
 import { findUserName, getRandom } from "../utils/utils.js";
 import aliases from "../utils/commandAliases.js";
 import { logger } from "../utils/logger.js";
+import actions from "./index.js";
+
 export async function autoGem(this: BaseAgent, useGem1: boolean, useGem2: boolean, useGem3: boolean) {
   let randomCommand = getRandom(aliases.COMMAND_INVENTORY) ?? "inv"
-  this.send(randomCommand);
   const filter = (msg: Message<boolean>) => msg.author.id == this.owoID && findUserName(msg) && isInventoryCommand(msg);
 
   await Promise.all([
@@ -20,7 +21,9 @@ export async function autoGem(this: BaseAgent, useGem1: boolean, useGem2: boolea
 
         if (this.config.autoCrate && this.inventory.includes("050")) {
           await this.send(`${getRandom(aliases.COMMAND_LOOTBOX) ?? "lb"} all`);
-          return this.autoGem.bind(this)(useGem1, useGem2, useGem3).then(() => resolve());
+          logger.info(`Waiting 10 seconds to get inventory info`)
+          await this.sleep(10000);
+          return await actions.autoGem.bind(this)(useGem1, useGem2, useGem3).then(() => resolve());
         }
 
         this.gem1 = this.inventory.filter((item) => /^05[1-7]$/.test(item)).map(Number);

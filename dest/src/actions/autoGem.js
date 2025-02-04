@@ -1,9 +1,9 @@
 import { findUserName, getRandom } from "../utils/utils.js";
 import aliases from "../utils/commandAliases.js";
 import { logger } from "../utils/logger.js";
+import actions from "./index.js";
 export async function autoGem(useGem1, useGem2, useGem3) {
     let randomCommand = getRandom(aliases.COMMAND_INVENTORY) ?? "inv";
-    this.send(randomCommand);
     const filter = (msg) => msg.author.id == this.owoID && findUserName(msg) && isInventoryCommand(msg);
     await Promise.all([
         new Promise(async (resolve) => {
@@ -17,7 +17,9 @@ export async function autoGem(useGem1, useGem2, useGem3) {
                 }
                 if (this.config.autoCrate && this.inventory.includes("050")) {
                     await this.send(`${getRandom(aliases.COMMAND_LOOTBOX) ?? "lb"} all`);
-                    return this.autoGem.bind(this)(useGem1, useGem2, useGem3).then(() => resolve());
+                    logger.info(`Waiting 10 seconds to get inventory info`);
+                    await this.sleep(10000);
+                    return await actions.autoGem.bind(this)(useGem1, useGem2, useGem3).then(() => resolve());
                 }
                 this.gem1 = this.inventory.filter((item) => /^05[1-7]$/.test(item)).map(Number);
                 this.gem2 = this.inventory.filter((item) => /^(06[5-9]|07[0-1])$/.test(item)).map(Number);
