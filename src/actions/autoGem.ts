@@ -12,7 +12,7 @@ export async function autoGem(this: BaseAgent, useGem1: boolean, useGem2: boolea
   await Promise.all([
     new Promise<void>(async (resolve) => {
       const msg = (await this.createCollector(filter)) as Message<boolean>;
-      if (!msg) return;
+      if (!msg) return resolve()
       if (this.config.autoGem) {
         this.inventory = msg.content.split("`");
         if (this.config.autoFCrate && this.inventory.includes("049")) {

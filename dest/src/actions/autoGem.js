@@ -9,7 +9,7 @@ export async function autoGem(useGem1, useGem2, useGem3) {
         new Promise(async (resolve) => {
             const msg = (await this.createCollector(filter));
             if (!msg)
-                return;
+                return resolve();
             if (this.config.autoGem) {
                 this.inventory = msg.content.split("`");
                 if (this.config.autoFCrate && this.inventory.includes("049")) {

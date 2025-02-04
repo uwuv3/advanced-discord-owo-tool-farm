@@ -10,7 +10,7 @@ export async function autoOrdinary() {
         new Promise(async (resolve) => {
             const msg = (await this.createCollector(filter));
             if (!msg)
-                return;
+                return resolve();
             if (this.config.autoGem && isHuntCommand(msg)) {
                 let param1 = !msg.content.includes("gem1") && (!this.gem1 || this.gem1.length > 0);
                 let param2 = !msg.content.includes("gem3") && (!this.gem2 || this.gem2.length > 0);
