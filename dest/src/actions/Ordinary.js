@@ -8,6 +8,8 @@ export async function autoOrdinary() {
     this.lastTime = Date.now();
     await Promise.all([
         new Promise(async (resolve) => {
+            //ITS ME
+            //if(command == "BATTLE") return resolve(); //who tf needs collector bedfore  checklist
             const msg = (await this.createCollector(filter));
             if (!msg)
                 return resolve();

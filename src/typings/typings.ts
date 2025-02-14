@@ -9,96 +9,99 @@ import NotifySend from "node-notifier/notifiers/notifysend.js";
 import Growl from "node-notifier/notifiers/growl.js";
 
 export type AgentOptions = {
-    options?: ClientOptions;
+  options?: ClientOptions;
 };
 
 export type SendOptions = {
-    withPrefix?: boolean;
-    channel?: TextChannel | DMChannel;
-    delay?: number;
+  withPrefix?: boolean;
+  channel?: TextChannel | DMChannel;
+  delay?: number;
 };
 
-export type popupOptions = Notification
-    | NotificationCenter.Notification
-    | WindowsToaster.Notification
-    | WindowsBalloon.Notification
-    | NotifySend.Notification
-    | Growl.Notification;
+export type popupOptions =
+  | Notification
+  | NotificationCenter.Notification
+  | WindowsToaster.Notification
+  | WindowsBalloon.Notification
+  | NotifySend.Notification
+  | Growl.Notification;
 
 export type NotifierCondition = {
-    condition: Configuration["wayNotify"][number]
-    callback: () => any
-}
+  condition: Configuration["wayNotify"][number];
+  callback: () => any;
+};
 
 export type CommandCondition = {
-    condition: () => boolean;
-    action: () => any;
+  condition: () => boolean;
+  action: () => any;
 };
 
 export type Commands = {
-    name: string;
-    description: string;
-    execute: (agent: BaseAgent, message: Message, ...args: string[]) => any;
+  name: string;
+  description: string;
+  execute: (agent: BaseAgent, message: Message, ...args: string[]) => any;
 };
 
-export type QuestTypes = "xp" | "hunt" | "battle" | "owo" | "action" | "gamble" | "unsupported"
+export type QuestTypes = "xp" | "hunt" | "battle" | "owo" | "action" | "gamble" | "unsupported";
 
 export const defaultConfig: Configuration = {
-    username: "",
-    token: "",
-    guildID: "",
-    channelID: [""],
-    wayNotify: ["webhook"],
-    musicPath: "",
-    webhookURL: "",
-    prefix: "!",
-    adminID: "",
-    captchaAPI: "2captcha",
-    apiKey: "",
-    autoPray: ["pray"],
-    autoGem: 1,
-    autoCrate: true,
-    autoFCrate: true,
-    autoQuote: ["owo", "quote"],
-    autoDaily: true,
-    autoQuest: true,
-    autoCookie: true,
-    autoClover: true,
-    autoOther: ["run", "pup", "piku"],
-    autoSell: true,
-    autoSleep: true,
-    autoReload: true,
-    autoResume: true,
-    showRPC: true
-}
+  username: "",
+  token: "",
+  guildID: "",
+  channelID: [""],
+  wayNotify: ["webhook"],
+  musicPath: "",
+  webhookURL: "",
+  prefix: "!",
+  adminID: "",
+  captchaAPI: "2captcha",
+  apiKey: "",
+  autoPray: ["pray"],
+  autoGem: 1,
+  autoCrate: true,
+  autoFCrate: true,
+  autoQuote: ["owo", "quote"],
+  autoDaily: true,
+  autoQuest: true,
+  autoCookie: true,
+  autoClover: true,
+  autoOther: ["run", "pup", "piku"],
+  autoSell: true,
+  autoSleep: true,
+  autoReload: true,
+  autoResume: true,
+  showRPC: true,
+  owoPrefix: ""
+};
 
 export interface Configuration {
-    username: string
-    token: string
-    guildID: string
-    channelID: string[]
-    wayNotify: Array<"webhook" | "dms" | "call" | "music" | "popup">
-    webhookURL?: string
-    musicPath?: string
-    prefix?: string
-    adminID?: string
-    captchaAPI?: "2captcha" | "anticaptcha"
-    apiKey: string
-    autoPray: string[]
-    autoGem: 0 | 1 | -1
-    autoCrate?: boolean
-    autoFCrate?: boolean
-    autoQuote: Array<"owo" | "quote">
-    autoDaily: boolean
-    autoQuest: boolean
-    autoCookie: boolean
-    autoClover: boolean
-    autoSell: boolean
-    autoOther: Array<"run" | "pup" | "piku">
-    autoSleep: boolean
-    autoReload: boolean
-    autoResume: boolean
-    showRPC: boolean
+  username: string;
+  token: string;
+  guildID: string;
+  channelID: string[];
+  wayNotify: Array<"webhook" | "dms" | "call" | "music" | "popup">;
+  webhookURL?: string;
+  musicPath?: string;
+  prefix?: string;
+  adminID?: string;
+  captchaAPI?: "2captcha" | "anticaptcha";
+  apiKey: string;
+  autoPray: string[];
+  autoGem: 0 | 1 | -1;
+  autoCrate?: boolean;
+  autoFCrate?: boolean;
+  autoQuote: Array<"owo" | "quote">;
+  autoDaily: boolean;
+  autoQuest: boolean;
+  autoCookie: boolean;
+  autoClover: boolean;
+  autoSell: boolean;
+  autoOther: Array<"run" | "pup" | "piku">;
+  autoSleep: boolean;
+  autoReload: boolean;
+  autoResume: boolean;
+  showRPC: boolean;
+  owoPrefix: string;
 }
 // export interface Configuration {
 //     tag: string

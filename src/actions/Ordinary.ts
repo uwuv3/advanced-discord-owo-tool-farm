@@ -12,7 +12,8 @@ export async function autoOrdinary(this: BaseAgent) {
   this.lastTime = Date.now();
   await Promise.all([
     new Promise<void>(async (resolve) => {
-      if(command == "BATTLE") return resolve(); //who tf needs collector bedfore  checklist
+      //ITS ME
+      //if(command == "BATTLE") return resolve(); //who tf needs collector bedfore  checklist
       const msg = (await this.createCollector(filter)) as Message<boolean>;
       if (!msg) return resolve()
       if (this.config.autoGem && isHuntCommand(msg)) {

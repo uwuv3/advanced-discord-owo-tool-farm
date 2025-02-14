@@ -24,7 +24,8 @@ export const defaultConfig = {
     autoSleep: true,
     autoReload: true,
     autoResume: true,
-    showRPC: true
+    showRPC: true,
+    owoPrefix: ""
 };
 // export interface Configuration {
 //     tag: string

@@ -50,17 +50,17 @@ export class ConfigManager {
             choices: [
                 ...Object.keys(accounts).map((id) => ({
                     name: accounts[id].username || accounts[id].tag || id,
-                    value: accounts[id].token,
+                    value: accounts[id].token
                 })),
                 {
                     name: "New account (Sign in with Token)",
-                    value: "token",
+                    value: "token"
                 },
                 {
                     name: "New account (Sign in with QR code)",
-                    value: undefined,
-                },
-            ],
+                    value: undefined
+                }
+            ]
         });
     };
     accountAction = () => {
@@ -71,23 +71,23 @@ export class ConfigManager {
                 {
                     name: "Run",
                     value: "run",
-                    disabled: this.cache ? false : "No existing config found",
+                    disabled: this.cache ? false : "No existing config found"
                 },
                 {
                     name: "Edit config",
-                    value: "edit",
+                    value: "edit"
                 },
                 {
                     name: "Export config into auto-run file",
                     value: "export",
-                    disabled: this.cache ? false : "No existing config found",
+                    disabled: this.cache ? false : "No existing config found"
                 },
                 {
                     name: "Delete account",
                     value: "delete",
-                    disabled: this.cache ? false : "No existing config found",
-                },
-            ],
+                    disabled: this.cache ? false : "No existing config found"
+                }
+            ]
         });
     };
     getToken = (cache) => {
@@ -98,8 +98,7 @@ export class ConfigManager {
             // /^(mfa\.[a-z0-9_-]{20,})|([a-z0-9_-]{23,28}\.[a-z0-9_-]{6,7}\.[a-z0-9_-]{27})$/.test(
             //     token
             // )
-            token.split(".").length === 3 ? true
-                : "Invalid Token",
+            token.split(".").length === 3 ? true : "Invalid Token",
             default: cache
         });
     };
@@ -123,12 +122,14 @@ export class ConfigManager {
             required: true,
             message: "Select channels to farm (Randomly if multiple channels are selected): ",
             choices: [
-                ...guild.channels.cache.filter(c => c.type == "GUILD_TEXT").map((channel) => ({
+                ...guild.channels.cache
+                    .filter((c) => c.type == "GUILD_TEXT")
+                    .map((channel) => ({
                     name: channel.name,
                     value: channel.id,
                     checked: cache?.includes(channel.id)
                 }))
-            ],
+            ]
         });
     };
     wayNotify = (cache) => {
@@ -138,25 +139,25 @@ export class ConfigManager {
             choices: [
                 {
                     name: "[BETA] Popup Notification",
-                    value: "popup",
+                    value: "popup"
                 },
                 {
                     name: "Music",
-                    value: "music",
+                    value: "music"
                 },
                 {
                     name: "Webhook",
-                    value: "webhook",
+                    value: "webhook"
                 },
                 {
                     name: "Direct Message (Friends Only)",
-                    value: "dms",
+                    value: "dms"
                 },
                 {
                     name: "Call (Friends Only)",
-                    value: "call",
+                    value: "call"
                 }
-            ].map(c => ({ ...c, checked: cache?.includes(c.value) }))
+            ].map((c) => ({ ...c, checked: cache?.includes(c.value) }))
         });
     };
     musicNotify = (cache) => {
@@ -184,7 +185,7 @@ export class ConfigManager {
                     const subs = fs.readdirSync(dir);
                     if (!subs.length)
                         return [{ name: "No supported music file or directory Found", value: dir, disabled: true }];
-                    return subs.map(sub => {
+                    return subs.map((sub) => {
                         const subPath = path.resolve(dir, sub);
                         const name = fs.statSync(subPath).isDirectory() ? `${sub}\\\\` : sub;
                         return {
@@ -200,18 +201,21 @@ export class ConfigManager {
         console.clear();
         return input({
             message: "Enter your webhook URL: ",
-            validate: (url) => this.webhookRegex.test(url) ? true : "Invalid Webhook URL",
+            validate: (url) => (this.webhookRegex.test(url) ? true : "Invalid Webhook URL"),
             default: cache
         });
     };
     getAdminID = (cache) => {
         console.clear();
-        const criticalWayNotify = ["call", "dms"].some(w => this.config.wayNotify.includes(w));
-        const message = "Enter user ID you want to " + (
-        //(<Configuration["wayNotify"]>["webhook", ...criticalWayNotify]).some(w => this.config.wayNotify.includes(w)) 
-        this.config.autoCookie ? "send Cookie"
-            : this.config.autoClover ? "send Clover"
-                : "be notified via Webhook/Call/Direct Message") + ": ";
+        const criticalWayNotify = ["call", "dms"].some((w) => this.config.wayNotify.includes(w));
+        const message = "Enter user ID you want to " +
+            //(<Configuration["wayNotify"]>["webhook", ...criticalWayNotify]).some(w => this.config.wayNotify.includes(w))
+            (this.config.autoCookie
+                ? "send Cookie"
+                : this.config.autoClover
+                    ? "send Clover"
+                    : "be notified via Webhook/Call/Direct Message") +
+            ": ";
         return input({
             required: criticalWayNotify || this.config.autoCookie,
             message,
@@ -258,7 +262,7 @@ export class ConfigManager {
                 {
                     name: "2Captcha",
                     value: "2captcha"
-                },
+                }
                 // {
                 //     name: "AntiCaptcha",
                 //     value: "anticaptcha" as Configuration["captchaAPI"],
@@ -280,6 +284,18 @@ export class ConfigManager {
         console.clear();
         return input({
             message: "Enter your Selfbot Prefix, Empty to skip: ",
+            validate: (answer) => {
+                if (!answer)
+                    return true;
+                return /^[^0-9\s]{1,5}$/.test(answer) ? true : "Invalid Prefix";
+            },
+            default: cache
+        });
+    };
+    getOwOPrefix = (cache) => {
+        console.clear();
+        return input({
+            message: "Enter your Second OwO Prefix, Empty to skip: ",
             validate: (answer) => {
                 if (!answer)
                     return true;
@@ -316,11 +332,13 @@ export class ConfigManager {
             choices: [
                 { name: "Pray selfbot account", value: `pray` },
                 { name: "Curse selfbot account", value: `curse` },
-                ...(this.config.adminID ? [
-                    { name: "Pray notification reception", value: `pray ${this.config.adminID}` },
-                    { name: "Curse notification reception", value: `curse ${this.config.adminID}` }
-                ] : [])
-            ].map(c => ({ ...c, checked: cache?.includes(c.value) })),
+                ...(this.config.adminID
+                    ? [
+                        { name: "Pray notification reception", value: `pray ${this.config.adminID}` },
+                        { name: "Curse notification reception", value: `curse ${this.config.adminID}` }
+                    ]
+                    : [])
+            ].map((c) => ({ ...c, checked: cache?.includes(c.value) }))
         });
     };
     quoteAction = (cache) => {
@@ -335,8 +353,8 @@ export class ConfigManager {
                 {
                     name: "Quote",
                     value: "quote"
-                },
-            ].map(c => ({ ...c, checked: cache?.includes(c.value) })),
+                }
+            ].map((c) => ({ ...c, checked: cache?.includes(c.value) }))
         });
     };
     otherAction = (cache) => {
@@ -355,8 +373,8 @@ export class ConfigManager {
                 {
                     name: "Piku",
                     value: "piku"
-                },
-            ].map(c => ({ ...c, checked: cache?.includes(c.value) })),
+                }
+            ].map((c) => ({ ...c, checked: cache?.includes(c.value) }))
         });
     };
     trueFalse = (message, cache) => {
@@ -382,12 +400,13 @@ export class ConfigManager {
         }
         if (this.config.wayNotify.includes("webhook"))
             this.config.webhookURL = await this.webhookURL(this.cache?.webhookURL);
-        if (["webhook", "dms", "call"].some(w => this.config.wayNotify.includes(w)))
+        if (["webhook", "dms", "call"].some((w) => this.config.wayNotify.includes(w)))
             this.config.adminID = await this.getAdminID(this.cache?.adminID);
         this.config.captchaAPI = await this.captchaAPI(this.cache?.captchaAPI);
         if (this.config.captchaAPI)
             this.config.apiKey = await this.getAPIKey(this.cache?.apiKey);
         this.config.prefix = await this.getPrefix(this.cache?.prefix);
+        this.config.owoPrefix = await this.getOwOPrefix(this.cache?.owoPrefix);
         this.config.autoGem = await this.gemUsage(this.cache?.autoGem);
         if (this.config.autoGem)
             this.config.autoCrate = await this.trueFalse("Toggle Automatically Use Gem Crate", this.cache?.autoCrate);
@@ -395,7 +414,8 @@ export class ConfigManager {
             this.config.autoFCrate = await this.trueFalse("Toggle Automatically Use Fabled Crate", this.cache?.autoFCrate);
         this.config.autoCookie = await this.trueFalse("Toggle Automatically Send Cookie", this.cache?.autoCookie);
         this.config.autoClover = await this.trueFalse("Toggle Automatically Send Clover", this.cache?.autoClover);
-        if ((this.config.autoCookie || this.config.autoClover) && (!this.config.adminID || this.config.adminID.length === 0))
+        if ((this.config.autoCookie || this.config.autoClover) &&
+            (!this.config.adminID || this.config.adminID.length === 0))
             this.config.adminID = await this.getAdminID(this.cache?.adminID);
         this.config.autoOther = await this.otherAction(Array.isArray(this.cache?.autoOther) ? this.cache?.autoOther : undefined);
         this.config.autoQuote = await this.quoteAction(Array.isArray(this.cache?.autoQuote) ? this.cache.autoQuote : undefined);
@@ -411,11 +431,11 @@ export class ConfigManager {
     collectData = async () => {
         console.clear();
         if (Object.keys(this.rawData).length === 0) {
-            const confirm = await this.trueFalse("Copyright 2021-2025 © Eternity_VN [Kyou Izumi] x aiko-chan-ai [Elysia]. All rights reserved."
-                + "\nMade by Vietnamese, From Github with ❤️"
-                + "\nBy using this module, you agree to our Terms of Use and accept any associated risks."
-                + "\nPlease note that we do not take any responsibility for accounts being banned due to the use of our tools."
-                + "\nDo you want to continue?", false);
+            const confirm = await this.trueFalse("Copyright 2021-2025 © Eternity_VN [Kyou Izumi] x aiko-chan-ai [Elysia]. All rights reserved." +
+                "\nMade by Vietnamese, From Github with ❤️" +
+                "\nBy using this module, you agree to our Terms of Use and accept any associated risks." +
+                "\nPlease note that we do not take any responsibility for accounts being banned due to the use of our tools." +
+                "\nDo you want to continue?", false);
             if (!confirm)
                 process.exit(0);
         }

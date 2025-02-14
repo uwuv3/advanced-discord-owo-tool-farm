@@ -2,6 +2,10 @@ node_modules
 package-lock.json
 pnpm-lock.yaml
 
+test
+dest/test
+debug
+
 logs
 obfuscate.cmd
 obfuscate.sh

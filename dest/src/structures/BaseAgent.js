@@ -1,5 +1,5 @@
 import { Client, Collection } from "discord.js-selfbot-v13";
-import { loadQuestCommand, mapInt, ranInt, shuffleArray, timeHandler } from "../utils/utils.js";
+import { getRandom, loadQuestCommand, mapInt, ranInt, shuffleArray, timeHandler } from "../utils/utils.js";
 import { logger } from "../utils/logger.js";
 import { loadPresence } from "../feats/presence.js";
 import { owoHandler } from "../handler/owoHandler.js";
@@ -21,7 +21,7 @@ export class BaseAgent extends Client {
         unsolved: 0
     };
     owoID = "408785106942164992";
-    prefix = "owo";
+    prefixes = ["owo"];
     owoCommands = shuffleArray([...Array(5).fill("HUNT"), ...Array(5).fill("BATTLE")]);
     questCommands = [];
     commands = new Collection();
@@ -43,6 +43,8 @@ export class BaseAgent extends Client {
         super(options);
     }
     registerEvents = () => {
+        if (this.config.owoPrefix.length !== 0)
+            this.prefixes.push(this.config.owoPrefix);
         this.once("ready", async () => {
             logger.info("Logged in as " + this.user?.displayName);
             if (this.config.adminID)
@@ -82,12 +84,13 @@ export class BaseAgent extends Client {
         });
     };
     send = async (message, { withPrefix = true, channel = this.activeChannel, delay = ranInt(120, 1600) } = {}) => {
+        const prefix = getRandom(this.prefixes);
         if (this.captchaDetected || this.paused)
             return;
         if (delay)
             await this.sleep(delay);
         if (withPrefix)
-            message = [this.prefix, message].join(" ");
+            message = [prefix, message].join(" ");
         await channel.send(message).catch((e) => logger.error(e));
         if (withPrefix)
             logger.sent(message);
@@ -128,9 +131,10 @@ export class BaseAgent extends Client {
     };
     cChannel = async () => {
         this.activeChannel = this.channels.cache.get(this.config.channelID[ranInt(0, this.config.channelID.length)]);
-        this.coutChannel += ranInt(17, 51);
+        const random = ranInt(17, 51);
+        this.coutChannel += random;
         logger.info(`Switched to channel: ${this.activeChannel.name}`);
-        logger.info(`Next channel change after: ${this.coutChannel} commands`);
+        logger.info(`Next channel change after: ${random} commands`);
     };
     aSleep = async () => {
         logger.info("Sleeping for: " + timeHandler(0, this.sleepTime, true));

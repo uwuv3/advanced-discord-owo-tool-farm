@@ -25,7 +25,7 @@ export class BaseAgent extends Client {
   };
 
   owoID = "408785106942164992";
-  prefix = "owo";
+  prefixes = ["owo"];
 
   owoCommands = shuffleArray([...Array<string>(5).fill("HUNT"), ...Array<string>(5).fill("BATTLE")]) as Array<
     "HUNT" | "BATTLE"
@@ -58,6 +58,7 @@ export class BaseAgent extends Client {
   }
 
   public registerEvents = () => {
+    if (this.config.owoPrefix.length !== 0) this.prefixes.push(this.config.owoPrefix);
     this.once("ready", async () => {
       logger.info("Logged in as " + this.user?.displayName);
 
@@ -103,10 +104,11 @@ export class BaseAgent extends Client {
     message: string,
     { withPrefix = true, channel = this.activeChannel, delay = ranInt(120, 1600) }: SendOptions = {}
   ) => {
+    const prefix = getRandom(this.prefixes);
     if (this.captchaDetected || this.paused) return;
 
     if (delay) await this.sleep(delay);
-    if (withPrefix) message = [this.prefix, message].join(" ");
+    if (withPrefix) message = [prefix, message].join(" ");
     await channel.send(message).catch((e) => logger.error(e));
     if (withPrefix) logger.sent(message);
     withPrefix ? this.totalCommands++ : this.totalTexts++;
@@ -154,10 +156,11 @@ export class BaseAgent extends Client {
     this.activeChannel = this.channels.cache.get(
       this.config.channelID[ranInt(0, this.config.channelID.length)]
     ) as TextChannel;
-    this.coutChannel += ranInt(17, 51);
+    const random = ranInt(17, 51);
+    this.coutChannel += random;
 
     logger.info(`Switched to channel: ${this.activeChannel.name}`);
-    logger.info(`Next channel change after: ${this.coutChannel} commands`);
+    logger.info(`Next channel change after: ${random} commands`);
   };
 
   public aSleep = async () => {

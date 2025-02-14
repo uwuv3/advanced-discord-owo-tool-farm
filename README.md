@@ -163,7 +163,7 @@ npm start -- -- -i myfile.json // Trigger auto import and run with given myfile.
         "channel ID 2",
         "...", // must delete all empty if unused
     ],
-    "wayNotify": [ // possible choices are: ["webhook", "dms", "call", "music"]
+    "wayNotify": [ // possible choices are: ["webhook", "dms", "call", "music","popup"]
         "webhook"
     ],
     "musicPath": "", // skip this if you don't use music in wayNotify
@@ -218,7 +218,7 @@ For more information: [SECURITY.md](https://github.com/Kyou-Izumi/advanced-disco
 
 ✔ Selfbot Commands
 
-✔ Send notification via Webhook/DMs/Call
+✔ Send notification via Webhook/DMs/Call/Notification
 
 ✔ Cool Activities
 
