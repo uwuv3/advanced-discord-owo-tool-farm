@@ -29,6 +29,10 @@ For IOS: Not yet (please tell us if you know any supporting method)
 
 __Note:__ Termux from Google Play Store is unsupported.
 
+## Tutorial
+
+__A full tutorial on how to use the tool is now available [on Youtube](https://youtu.be/-oYY3ZdqPy8)!__
+
 ## Installation
 
 ### Node.js installation
@@ -195,10 +199,6 @@ npm start -- -- -i myfile.json // Trigger auto import and run with given myfile.
 }
 ```
 
-## Tutorial
-
-__A full tutorial on how to use the tool will be uploaded to Youtube soon!__
-
 ## Caution
 Recently, there have been reports of hacked accounts and lost currency associated with the use of certain tools. For your safety, it is advised to avoid any kind of obfuscated or suspicious code. Prioritize security and exercise caution when using external code or tools. Stay informed, trust reliable sources, and adopt good security practices to protect your accounts and data.
 
@@ -274,8 +274,7 @@ Your stars serve as fuel for our spirits, igniting our passion and dedication to
 
 Your stars inspire us to keep pushing boundaries, overcome challenges, and bring about meaningful change.
 
-[![Star History Chart](https://api.star-history.com/svg?repos=Kyou-Izumi/discord-owo-selfbot&type=Date)](https://star-history.com/#Kyou-Izumi/advanced-discord-owo-tool-farm&Date)
-
+[![Star History Chart](https://api.star-history.com/svg?repos=Kyou-Izumi/advanced-discord-owo-tool-farm&type=Date)](https://star-history.com/#Kyou-Izumi/advanced-discord-owo-tool-farm&Date)
 
 ## Contributing
 
