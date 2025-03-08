@@ -8,26 +8,31 @@ export async function autoOrdinary(this: BaseAgent) {
   let randomCommand = getRandom(aliases[`COMMAND_${command}`]) ?? command.toLowerCase();
   const filter = (msg: Message<boolean>) =>
     msg.author.id == this.owoID && findUserName(msg) && (isBattleCommand(msg) || isHuntCommand(msg));
-
   this.lastTime = Date.now();
   await Promise.all([
     new Promise<void>(async (resolve) => {
-      //ITS ME
-      //if(command == "BATTLE") return resolve(); //who tf needs collector bedfore  checklist
-      const msg = (await this.createCollector(filter)) as Message<boolean>;
-      if (!msg) return resolve()
-      if (this.config.autoGem && isHuntCommand(msg)) {
-        let param1 = !msg.content.includes("gem1") && (!this.gem1 || this.gem1.length > 0);
-        let param2 = !msg.content.includes("gem3") && (!this.gem2 || this.gem2.length > 0);
-        let param3 = !msg.content.includes("gem4") && (!this.gem3 || this.gem3.length > 0);
-        if (param1 || param2 || param3) await actions.autoGem.bind(this)(param1, param2, param3);
-      } else if (isBattleCommand(msg)) {
-        //for the checklist XP
-      }
+      try {
+        const msg = (await this.createCollector(filter)) as Message<boolean>;
+        if (!msg) return resolve();
+        if (this.config.autoGem && isHuntCommand(msg)) {
+          let param1 = !msg.content.includes("gem1") && (!this.gem1 || this.gem1.length > 0);
+          let param2 = !msg.content.includes("gem3") && (!this.gem2 || this.gem2.length > 0);
+          let param3 = !msg.content.includes("gem4") && (!this.gem3 || this.gem3.length > 0);
+          if (param1 || param2 || param3) await actions.autoGem.bind(this)(param1, param2, param3);
+        } else if (isBattleCommand(msg)) {
+          //for the checklist XP
+        }
+      } catch (error) {}
+
       resolve();
     }),
     this.send(randomCommand)
   ]);
+  if (this.config.huntBattleSameTime) {
+    const nextCommand = command == "HUNT" ? "BATTLE" : "HUNT";
+    randomCommand = getRandom(aliases[`COMMAND_${command}`]) ?? command.toLowerCase();
+    await Promise.all([this.send(randomCommand)]);
+  }
 }
 export const isHuntCommand = (msg: Message<boolean>) =>
   /hunt is empowered by| spent 5 .+ and caught a/.test(msg.content);

@@ -4,6 +4,7 @@ import os from "node:os";
 import crypto from "node:crypto";
 import { CommandCondition, QuestTypes } from "../typings/typings.js";
 import { Message } from "discord.js-selfbot-v13";
+import Language from "../structures/Language.js";
 export const mapInt = (number: number, fromMIN: number, fromMAX: number, toMIN: number, toMAX: number) => {
   return Math.floor(((number - fromMIN) / (fromMAX - fromMIN)) * (toMAX - toMIN) + toMIN);
 };
@@ -17,7 +18,7 @@ export const timeHandler = (startTime: number, endTime: number, removeDay = fals
   const mn = Math.floor(((ms % 86400000) % 3600000) / 60000);
   const hr = Math.floor((ms % 86400000) / 3600000);
   const dy = Math.floor(ms / 86400000);
-  return (removeDay ? "" : dy + (dy > 1 ? " days " : " day ")) + hr + ":" + mn + ":" + sc;
+  return (removeDay ? "" : dy + (dy > 1 ? Language.__("format.days") :Language.__("format.day"))) + hr + ":" + mn + ":" + sc;
 };
 export const shuffleArray = <T>(array: T[]): T[] => {
   for (let i = array.length - 1; i > 0; i--) {

@@ -7,6 +7,7 @@ import { checkbox, confirm, input, select } from "@inquirer/prompts";
 import { logger } from "../utils/logger.js";
 import { Guild } from "discord.js-selfbot-v13";
 import { BaseAgent } from "./BaseAgent.js";
+import Language from "./Language.js";
 type DataFile = Record<string, Configuration>;
 
 export class ConfigManager {
@@ -36,6 +37,8 @@ export class ConfigManager {
 
     if (!fs.existsSync(this.folderPath)) {
       fs.mkdirSync(this.folderPath, { recursive: true });
+    }
+    if (!fs.existsSync(this.dataPath)) {
       fs.writeFileSync(this.dataPath, JSON.stringify({}, null, 4));
     }
     const oldPath = path.resolve(os.homedir(), "data", "data.json");
@@ -44,7 +47,7 @@ export class ConfigManager {
         const data = fs.readFileSync(oldPath);
         fs.writeFileSync(path.resolve(this.dataPath), data);
       } catch (error) {
-        logger.error("Failed to bring back old config");
+        logger.error(Language.__("fail.bringOldData"));
         logger.error(error as Error);
       }
       try {
@@ -57,19 +60,24 @@ export class ConfigManager {
   private listAccount = (accounts: DataFile & Record<string, { username?: string; tag?: string }>) => {
     console.clear();
     return select<"token" | undefined | string>({
-      message: "Select an account: ",
+      message: `${Language.__("question.selectAccount")}: `,
       choices: [
         ...Object.keys(accounts).map((id) => ({
           name: accounts[id].username || accounts[id].tag || id,
           value: accounts[id].token
         })),
         {
-          name: "New account (Sign in with Token)",
-          value: "token"
+          name: `${Language.__("answer.newAccount")}`,
+          value: "!token"
+        },
+
+        {
+          name: `${Language.__("answer.newAccountQR")}`,
+          value: undefined
         },
         {
-          name: "New account (Sign in with QR code)",
-          value: undefined
+          name: `${Language.__("answer.selectLanguage")}`,
+          value: "!language"
         }
       ]
     });
@@ -78,26 +86,26 @@ export class ConfigManager {
   private accountAction = () => {
     console.clear();
     return select<"run" | "edit" | "export" | "delete">({
-      message: "Select an action: ",
+      message: `${Language.__("question.selectAction")}`,
       choices: [
         {
-          name: "Run",
+          name: `${Language.__("answer.runAccount")}`,
           value: "run",
-          disabled: this.cache ? false : "No existing config found"
+          disabled: this.cache ? false : Language.__("fail.noExistsConfig")
         },
         {
           name: "Edit config",
           value: "edit"
         },
         {
-          name: "Export config into auto-run file",
+          name: Language.__("answer.exportAccount"),
           value: "export",
-          disabled: this.cache ? false : "No existing config found"
+          disabled: this.cache ? false : Language.__("fail.noExistsConfig")
         },
         {
-          name: "Delete account",
+          name: Language.__("answer.deleteAccount"),
           value: "delete",
-          disabled: this.cache ? false : "No existing config found"
+          disabled: this.cache ? false : Language.__("fail.noExistsConfig")
         }
       ]
     });
@@ -106,12 +114,12 @@ export class ConfigManager {
   private getToken = (cache?: string) => {
     console.clear();
     return input({
-      message: "Enter your token: ",
+      message: Language.__("question.enterToken"),
       validate: (token) =>
         // /^(mfa\.[a-z0-9_-]{20,})|([a-z0-9_-]{23,28}\.[a-z0-9_-]{6,7}\.[a-z0-9_-]{27})$/.test(
         //     token
         // )
-        token.split(".").length === 3 ? true : "Invalid Token",
+        token.split(".").length === 3 ? true : Language.__("fail.invalidToken"),
       default: cache
     });
   };
@@ -120,13 +128,14 @@ export class ConfigManager {
     const guilds = this.agent.guilds.cache;
     console.clear();
     return select<Guild>({
-      message: "Select a guild to farm: ",
+      message: Language.__("select.guildToFarm"),
       choices: [
         ...guilds.map((guild) => ({
           name: guild.name,
           value: guild
         }))
       ],
+
       default: cache ? guilds.get(cache) : undefined
     });
   };
@@ -135,10 +144,16 @@ export class ConfigManager {
     console.clear();
     return checkbox<string>({
       required: true,
-      message: "Select channels to farm (Randomly if multiple channels are selected): ",
+      message: Language.__("select.channelToFarm"),
+      //blud forgot to add permission
       choices: [
         ...guild.channels.cache
           .filter((c) => c.type == "GUILD_TEXT")
+          .filter(
+            (c) =>
+              c.permissionsFor(guild.client.user!)?.has("SEND_MESSAGES") &&
+              c.permissionsFor(guild.client.user!)?.has("VIEW_CHANNEL")
+          )
           .map((channel) => ({
             name: channel.name,
             value: channel.id,
@@ -151,26 +166,26 @@ export class ConfigManager {
   private wayNotify = (cache?: Configuration["wayNotify"]) => {
     console.clear();
     return checkbox<Configuration["wayNotify"][number]>({
-      message: "Select how you want to be notified when selfbot receives a captcha: ",
+      message: Language.__("select.wayNotify"),
       choices: [
         {
-          name: "[BETA] Popup Notification",
+          name: Language.__("option.wayNotifyPopup"),
           value: "popup" as Configuration["wayNotify"][number]
         },
         {
-          name: "Music",
+          name: Language.__("option.wayNotifyMusic"),
           value: "music" as Configuration["wayNotify"][number]
         },
         {
-          name: "Webhook",
+          name: Language.__("option.wayNotifyWebhook"),
           value: "webhook" as Configuration["wayNotify"][number]
         },
         {
-          name: "Direct Message (Friends Only)",
+          name: Language.__("option.wayNotifyDirectMessage"),
           value: "dms" as Configuration["wayNotify"][number]
         },
         {
-          name: "Call (Friends Only)",
+          name: Language.__("option.wayNotifyCall"),
           value: "call" as Configuration["wayNotify"][number]
         }
       ].map((c) => ({ ...c, checked: cache?.includes(c.value) }))
@@ -180,12 +195,12 @@ export class ConfigManager {
   private musicNotify = (cache?: string) => {
     console.clear();
     return input({
-      message: "Enter your music file path: ",
+      message: Language.__("question.musicPath"),
       validate: (path) => {
-        if (!fs.existsSync(path)) return "File does not exist or unreadable";
+        if (!fs.existsSync(path)) return Language.__("file.nonReadable");
         const stat = fs.statSync(path);
         if (stat.isDirectory()) return true;
-        return this.audioRegex.test(path) ? true : "Invalid music file";
+        return this.audioRegex.test(path) ? true : Language.__("fail.invalidMusic");
       },
       default: cache || path.resolve()
     });
@@ -194,12 +209,12 @@ export class ConfigManager {
   private musicNotify2 = (dir: string) => {
     console.clear();
     return select<string>({
-      message: "Select a music file: ",
+      message: Language.__("question.musicPath"),
       choices: [
-        { name: "..", value: path.resolve(dir, ".."), description: "Back to previous directory" },
+        { name: "..", value: path.resolve(dir, ".."), description: Language.__("option.backPreviousDir") },
         ...(() => {
           const subs = fs.readdirSync(dir);
-          if (!subs.length) return [{ name: "No supported music file or directory Found", value: dir, disabled: true }];
+          if (!subs.length) return [{ name: Language.__("fail.noMusicOrDirFound"), value: dir, disabled: true }];
           return subs.map((sub) => {
             const subPath = path.resolve(dir, sub);
             const name = fs.statSync(subPath).isDirectory() ? `${sub}\\\\` : sub;
@@ -216,8 +231,8 @@ export class ConfigManager {
   private webhookURL = (cache?: string) => {
     console.clear();
     return input({
-      message: "Enter your webhook URL: ",
-      validate: (url) => (this.webhookRegex.test(url) ? true : "Invalid Webhook URL"),
+      message: Language.__("question.enterWebhook"),
+      validate: (url) => (this.webhookRegex.test(url) ? true : Language.__("fail.invalidWebhookURL")),
       default: cache
     });
   };
@@ -229,38 +244,38 @@ export class ConfigManager {
       this.config.wayNotify.includes(w)
     );
 
-    const message =
-      "Enter user ID you want to " +
-      //(<Configuration["wayNotify"]>["webhook", ...criticalWayNotify]).some(w => this.config.wayNotify.includes(w))
-      (this.config.autoCookie
-        ? "send Cookie"
-        : this.config.autoClover
-        ? "send Clover"
-        : "be notified via Webhook/Call/Direct Message") +
-      ": ";
+    const subquestion =
+      "\n" +
+      (this.config.autoCookie ? Language.__("subquestion.cookie") + (this.config.autoClover ? "\n" : "") : "") +
+      (this.config.autoClover ? Language.__("subquestion.clover") + (criticalWayNotify ? "\n" : "") : "") +
+      (criticalWayNotify ? Language.__("subquestion.notify") : "");
+    const message = Language.__("question.enterAdminID", {
+      action: subquestion
+    });
+    //(<Configuration["wayNotify"]>["webhook", ...criticalWayNotify]).some(w => this.config.wayNotify.includes(w))
 
     return input({
-      required: criticalWayNotify || this.config.autoCookie,
+      required: criticalWayNotify || this.config.autoCookie || this.config.autoClover,
       message,
       validate: async (id) => {
-        if (!/^\d{17,19}$/.test(id)) return "Invalid User ID";
+        if (!/^\d{17,19}$/.test(id)) return Language.__("fail.invalidUserID");
         if (this.config.wayNotify.includes("call") || this.config.wayNotify.includes("dms")) {
-          if (id == this.agent.user?.id) return "Selfbot ID is not valid for Call/DMs option";
+          if (id == this.agent.user?.id) return Language.__("fail.cannotUseSelfbotAccount");
           const user = await this.agent.users.fetch(id).catch(() => null);
-          if (!user) return "User not found";
+          if (!user) return Language.__("fail.invalidUserID");
           switch (user.relationship.toString()) {
             case "FRIEND":
               return true;
             case "PENDING_INCOMING":
-              return await user.sendFriendRequest().catch(() => "Failed to send friend request");
+              return await user.sendFriendRequest().catch(() => Language.__("fail.sendFriendRequest"));
             case "PENDING_OUTGOING":
-              return "Please accept selfbot's friend request!";
+              return Language.__("fail.acceptUserRequest");
             default:
               try {
                 await user.sendFriendRequest();
-                return "Please accept selfbot's friend request!";
+                return Language.__("fail.acceptUserRequest");
               } catch (error) {
-                return "Could not send friend request to user!";
+                return Language.__("fail.sendFriendRequest");
               }
           }
         }
@@ -273,10 +288,10 @@ export class ConfigManager {
   private captchaAPI = (cache?: string) => {
     console.clear();
     return select<Configuration["captchaAPI"]>({
-      message: "Select a captcha solving service (Selfbot will try once): ",
+      message: Language.__("select.captchaSolvingService"),
       choices: [
         {
-          name: "Skip",
+          name: Language.__("option.skip"),
           value: undefined
         },
         {
@@ -297,7 +312,7 @@ export class ConfigManager {
     console.clear();
     return input({
       required: true,
-      message: "Enter your API key: ",
+      message: Language.__("question.enterAPIKey"),
       default: cache
     });
   };
@@ -305,10 +320,10 @@ export class ConfigManager {
   private getPrefix = (cache?: string) => {
     console.clear();
     return input({
-      message: "Enter your Selfbot Prefix, Empty to skip: ",
+      message: Language.__("question.selfbotPrefix"),
       validate: (answer: string) => {
         if (!answer) return true;
-        return /^[^0-9\s]{1,5}$/.test(answer) ? true : "Invalid Prefix";
+        return /^[^0-9\s]{1,5}$/.test(answer) ? true : Language.__("fail.invalidPrefix");
       },
       default: cache
     });
@@ -316,10 +331,10 @@ export class ConfigManager {
   private getOwOPrefix = (cache?: string) => {
     console.clear();
     return input({
-      message: "Enter your Second OwO Prefix, Empty to skip: ",
+      message: Language.__("question.owoPrefix"),
       validate: (answer: string) => {
         if (!answer) return true;
-        return /^[^0-9\s]{1,5}$/.test(answer) ? true : "Invalid Prefix";
+        return /^[^0-9\s]{1,5}$/.test(answer) ? true : Language.__("fail.invalidPrefix");
       },
       default: cache
     });
@@ -327,18 +342,18 @@ export class ConfigManager {
   private gemUsage = (cache?: Configuration["autoGem"]) => {
     console.clear();
     return select<Configuration["autoGem"]>({
-      message: "Select gem usage: ",
+      message: Language.__("select.gemUsage"),
       choices: [
         {
-          name: "Skip",
+          name: Language.__("option.skip"),
           value: 0
         },
         {
-          name: "Fabled -> Common",
+          name: Language.__("option.fabledtocommon"),
           value: 1
         },
         {
-          name: "Common -> Fabled",
+          name: Language.__("option.commontofabled"),
           value: -1
         }
       ],
@@ -349,14 +364,14 @@ export class ConfigManager {
   private prayCurse = (cache?: string[]) => {
     console.clear();
     return checkbox<string>({
-      message: "Select to pray/curse (randomly if multiple), Empty to skip: ",
+      message: Language.__("select.prayCurse"),
       choices: [
-        { name: "Pray selfbot account", value: `pray` },
-        { name: "Curse selfbot account", value: `curse` },
+        { name: Language.__("option.praySelf"), value: `pray` },
+        { name: Language.__("option.curseSelf"), value: `curse` },
         ...(this.config.adminID
           ? [
-              { name: "Pray notification reception", value: `pray ${this.config.adminID}` },
-              { name: "Curse notification reception", value: `curse ${this.config.adminID}` }
+              { name: Language.__("option.prayAdmin"), value: `pray ${this.config.adminID}` },
+              { name: Language.__("option.curseAdmin"), value: `curse ${this.config.adminID}` }
             ]
           : [])
       ].map((c) => ({ ...c, checked: cache?.includes(c.value) }))
@@ -366,14 +381,14 @@ export class ConfigManager {
   private quoteAction = (cache?: Configuration["autoQuote"]) => {
     console.clear();
     return checkbox<Configuration["autoQuote"][number]>({
-      message: "Select quote action: ",
+      message: Language.__("select.quote"),
       choices: [
         {
-          name: "OwO",
+          name: Language.__("option.owo"),
           value: "owo" as Configuration["autoQuote"][number]
         },
         {
-          name: "Quote",
+          name: Language.__("option.random"),
           value: "quote" as Configuration["autoQuote"][number]
         }
       ].map((c) => ({ ...c, checked: cache?.includes(c.value) }))
@@ -383,7 +398,7 @@ export class ConfigManager {
   private otherAction = (cache?: Configuration["autoOther"]) => {
     console.clear();
     return checkbox<Configuration["autoOther"][number]>({
-      message: "Select additional command action: ",
+      message: Language.__("select.other"),
       choices: [
         {
           name: "Run",
@@ -439,12 +454,13 @@ export class ConfigManager {
 
     this.config.autoGem = await this.gemUsage(this.cache?.autoGem);
     if (this.config.autoGem)
-      this.config.autoCrate = await this.trueFalse("Toggle Automatically Use Gem Crate", this.cache?.autoCrate);
+      this.config.autoCrate = await this.trueFalse(Language.__("toggle.autoCrate"), this.cache?.autoCrate);
     if (this.config.autoGem)
-      this.config.autoFCrate = await this.trueFalse("Toggle Automatically Use Fabled Crate", this.cache?.autoFCrate);
+      this.config.autoFCrate = await this.trueFalse(Language.__("toggle.autoFCrate"), this.cache?.autoFCrate);
 
-    this.config.autoCookie = await this.trueFalse("Toggle Automatically Send Cookie", this.cache?.autoCookie);
-    this.config.autoClover = await this.trueFalse("Toggle Automatically Send Clover", this.cache?.autoClover);
+    this.config.autoCookie = await this.trueFalse(Language.__("toggle.autoCookie"), this.cache?.autoCookie);
+
+    this.config.autoClover = await this.trueFalse(Language.__("toggle.autoClover"), this.cache?.autoClover);
     if (
       (this.config.autoCookie || this.config.autoClover) &&
       (!this.config.adminID || this.config.adminID.length === 0)
@@ -458,49 +474,53 @@ export class ConfigManager {
       Array.isArray(this.cache?.autoQuote) ? this.cache.autoQuote : undefined
     );
     this.config.autoPray = await this.prayCurse(this.cache?.autoPray);
-    this.config.autoDaily = await this.trueFalse("Toggle Automatically Claim Daily Reward", this.cache?.autoDaily);
-    this.config.autoSell = await this.trueFalse("Toggle Automatically Sell once cash runs out", this.cache?.autoSell);
-    this.config.autoSleep = await this.trueFalse("Toggle Automatically pause after times", this.cache?.autoSleep);
-    this.config.autoReload = await this.trueFalse("Toggle Automatically reload config daily", this.cache?.autoReload);
-    this.config.showRPC = await this.trueFalse("Toggle Show Discord Rich Presence", this.cache?.showRPC);
-    this.config.autoResume = await this.trueFalse(
-      "Toggle Automatically resume after captcha is solved",
-      this.cache?.autoResume
+    this.config.huntBattleSameTime = await this.trueFalse(
+      Language.__("toggle.huntBattleSameTime"),
+      this.cache?.huntBattleSameTime
     );
+    this.config.autoSell = await this.trueFalse(Language.__("toggle.autoSell"), this.cache?.autoSell);
+    this.config.autoSleep = await this.trueFalse(Language.__("toggle.autoSleep"), this.cache?.autoSleep);
+    this.config.autoReload = await this.trueFalse(Language.__("toggle.autoReload"), this.cache?.autoReload);
+    if (this.config.autoReload)
+      this.config.autoDaily = await this.trueFalse(Language.__("toggle.autoDaily"), this.cache?.autoDaily);
+
+    this.config.showRPC = await this.trueFalse(Language.__("toggle.showRPC"), this.cache?.showRPC);
+    this.config.autoResume = await this.trueFalse(Language.__("toggle.autoResume"), this.cache?.autoResume);
 
     this.config.token = this.agent.token!;
   };
 
-  public collectData = async () => {
+  public collectData = async (newLanguage = false): Promise<Configuration> => {
     console.clear();
 
-    if (Object.keys(this.rawData).length === 0) {
-      const confirm = await this.trueFalse(
-        "Copyright 2021-2025 © Eternity_VN [Kyou Izumi] x aiko-chan-ai [Elysia]. All rights reserved." +
-          "\nMade by Vietnamese, From Github with ❤️" +
-          "\nBy using this module, you agree to our Terms of Use and accept any associated risks." +
-          "\nPlease note that we do not take any responsibility for accounts being banned due to the use of our tools." +
-          "\nDo you want to continue?",
-        false
-      );
+    if (Object.keys(this.rawData).length === 0 || newLanguage) {
+      const confirm = await this.trueFalse(Language.__("greet"), false);
       if (!confirm) process.exit(0);
     }
 
     let account = await this.listAccount(this.rawData);
+    let language = false;
     switch (account) {
       case undefined:
         break;
-      case "token":
+      case "!language":
+        language = true;
+        break;
+      case "!token":
         account = await this.getToken();
+
       default:
         this.cache = this.rawData[Buffer.from(account.split(".")[0], "base64").toString("utf-8")];
     }
-
+    if (language) {
+      await Language.initialize(true);
+      return this.collectData(true);
+    }
     try {
       await this.agent.checkAccount(account);
     } catch (error) {
       logger.error(error as Error);
-      logger.warn("Failed to login, please try again");
+      logger.warn(Language.__("fail.login"));
       process.exit(-1);
     }
 
@@ -516,20 +536,20 @@ export class ConfigManager {
         case "export":
           const exportPath = path.resolve(process.cwd(), this.agent.user?.username + ".json");
           fs.writeFileSync(exportPath, JSON.stringify(this.cache || this.config, null, 4));
-          logger.info("Config exported to: " + exportPath);
+          logger.info(Language.__("success.exportConfig", { file: exportPath }));
           process.exit(0);
         case "delete":
           if (this.rawData[String(this.agent.user?.id)]) {
             delete this.rawData[String(this.agent.user?.id)];
             fs.writeFileSync(this.dataPath, JSON.stringify(this.rawData, null, 4));
-            logger.info("Account deleted");
-          } else logger.warn("No existing config found for this account, skipping deletion");
+            logger.info(Language.__("success.deleted"));
+          } else logger.warn(Language.__("fail.noExistConfigForAccount"));
           process.exit(0);
       }
 
     this.rawData[String(this.agent.user?.id)] = this.config;
     this.saveData(this.rawData);
-    logger.info("Data saved to: " + this.dataPath);
+    logger.info(Language.__("success.saved", { file: this.dataPath }));
 
     return this.config;
   };

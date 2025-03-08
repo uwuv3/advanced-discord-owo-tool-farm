@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
 import crypto from "node:crypto";
+import Language from "../structures/Language.js";
 export const mapInt = (number, fromMIN, fromMAX, toMIN, toMAX) => {
     return Math.floor(((number - fromMIN) / (fromMAX - fromMIN)) * (toMAX - toMIN) + toMIN);
 };
@@ -15,7 +16,7 @@ export const timeHandler = (startTime, endTime, removeDay = false) => {
     const mn = Math.floor(((ms % 86400000) % 3600000) / 60000);
     const hr = Math.floor((ms % 86400000) / 3600000);
     const dy = Math.floor(ms / 86400000);
-    return (removeDay ? "" : dy + (dy > 1 ? " days " : " day ")) + hr + ":" + mn + ":" + sc;
+    return (removeDay ? "" : dy + (dy > 1 ? Language.__("format.days") : Language.__("format.day"))) + hr + ":" + mn + ":" + sc;
 };
 export const shuffleArray = (array) => {
     for (let i = array.length - 1; i > 0; i--) {

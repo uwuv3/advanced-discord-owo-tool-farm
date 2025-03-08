@@ -7,7 +7,6 @@ import WindowsToaster from "node-notifier/notifiers/toaster.js";
 import WindowsBalloon from "node-notifier/notifiers/balloon.js";
 import NotifySend from "node-notifier/notifiers/notifysend.js";
 import Growl from "node-notifier/notifiers/growl.js";
-
 export type AgentOptions = {
   options?: ClientOptions;
 };
@@ -71,7 +70,8 @@ export const defaultConfig: Configuration = {
   autoReload: true,
   autoResume: true,
   showRPC: true,
-  owoPrefix: ""
+  owoPrefix: "",
+  huntBattleSameTime: false
 };
 
 export interface Configuration {
@@ -94,6 +94,7 @@ export interface Configuration {
   autoDaily: boolean;
   autoQuest: boolean;
   autoCookie: boolean;
+  huntBattleSameTime: boolean;
   autoClover: boolean;
   autoSell: boolean;
   autoOther: Array<"run" | "pup" | "piku">;

@@ -8,37 +8,40 @@ import { exec, execSync, spawn } from "node:child_process";
 import AdmZip from "adm-zip";
 import { copyDirectory } from "../utils/utils.js";
 import { promisify } from "node:util";
+import Language from "../structures/Language.js";
 class selfUpdate {
     baseHeaders = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537'
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537"
     };
     constructor() {
         this.checkUpdate = this.checkUpdate.bind(this);
     }
     async checkUpdate(autoUpdate = false) {
-        logger.info("Checking for update...");
+        logger.info(Language.__("update.checking"));
         const { version: currentVersion } = JSON.parse(fs.readFileSync(path.join(process.cwd(), "package.json"), "utf-8"));
-        const { data: { version: latestVersion } } = await axios.get("https://github.com/Kyou-Izumi/advanced-discord-owo-tool-farm/raw/refs/heads/main/package.json", {
+        const { data: { version: latestVersion } } = await axios.get("https://github.com/uwuv3/advanced-discord-owo-tool-farm/raw/refs/heads/main/package.json", {
             headers: this.baseHeaders
         });
         if (currentVersion < latestVersion) {
             console.clear();
-            logger.info(`New version available: v${latestVersion} (current: v${currentVersion})`);
-            const result = autoUpdate ? true : await confirm({
-                message: "Would you like to update?",
-                default: true
-            });
+            logger.info(Language.__("update.newVersion", { ver1: latestVersion, ver2: currentVersion }));
+            const result = autoUpdate
+                ? true
+                : await confirm({
+                    message: Language.__("update.question"),
+                    default: true
+                });
             if (result) {
-                logger.info("Updating...");
+                logger.info(Language.__("update.updating"));
                 await this.performUpdate();
-                logger.info("Installing libraries...");
+                logger.info(Language.__("update.loadLib"));
                 await this.installDependencies();
-                logger.info("Update completed!");
+                logger.info(Language.__("update.complete"));
                 this.restart();
             }
         }
         else {
-            logger.info(`You are running the latest version: ${currentVersion}`);
+            logger.info(Language.__("update.lastest", { ver: currentVersion }));
         }
     }
     performUpdate = async () => {
@@ -73,7 +76,7 @@ class selfUpdate {
     };
     manualUpdate = async () => {
         try {
-            const res = await axios.get("https://github.com/Kyou-Izumi/advanced-discord-owo-tool-farm/archive/master.zip", {
+            const res = await axios.get("https://github.com/uwuv3/advanced-discord-owo-tool-farm/archive/master.zip", {
                 responseType: "arraybuffer",
                 headers: this.baseHeaders
             });

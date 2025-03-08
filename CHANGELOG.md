@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [3.2.9] - 2025/03/09
+
+### Added
+- Language option (excluded selfbot commands)
+
 ## [3.2.8] - 2025/02/03
 
 ### Added

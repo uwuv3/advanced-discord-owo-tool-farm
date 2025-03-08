@@ -1,5 +1,6 @@
 import { Message } from "discord.js-selfbot-v13";
 import { BaseAgent } from "../structures/BaseAgent.js"
+import Language from "../structures/Language.js";
 
 export const dmsHandler = async (agent: BaseAgent) => {
     agent.on("messageCreate", async (message) => {
@@ -9,7 +10,7 @@ export const dmsHandler = async (agent: BaseAgent) => {
             const owo = message.client.users.cache.get(agent.owoID);
             const owoDM = await owo?.createDM();
             if(!owo || !owoDM) {
-                message.reply("Failed to Reach OwO DM Channel")
+                message.reply(Language.__("fail.reachOwODmChannel"))
                 return;
             }
 

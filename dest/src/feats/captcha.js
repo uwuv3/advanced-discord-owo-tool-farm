@@ -1,13 +1,14 @@
 import axios from "axios";
 import { Solver } from "2captcha";
 import { logger } from "../utils/logger.js";
+import Language from "../structures/Language.js";
 export const solveImage = async (attachmentUrl, config) => {
-    logger.debug("Found Captcha Image with URL: " + attachmentUrl);
+    logger.debug(Language.__("message.foundCaptchaURL", { url: attachmentUrl }));
     const response = await axios.get(attachmentUrl, {
         responseType: "arraybuffer",
         headers: {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
-            "Content-Type": "application/octet-stream",
+            "Content-Type": "application/octet-stream"
         }
     });
     if (config.captchaAPI == "2captcha") {
@@ -15,7 +16,7 @@ export const solveImage = async (attachmentUrl, config) => {
         const res = await solver.imageCaptcha(Buffer.from(response.data, "binary").toString("base64"), {
             numeric: 2,
             min_len: 3,
-            max_len: 6,
+            max_len: 6
         });
         return res.data;
     }

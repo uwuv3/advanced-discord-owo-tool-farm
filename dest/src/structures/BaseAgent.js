@@ -9,6 +9,7 @@ import { dmsHandler } from "../handler/dmsHandler.js";
 import { loadSweeper } from "../feats/sweeper.js";
 import { getQuestReward, processQuestLogs } from "../feats/quest.js";
 import actions from "../actions/index.js";
+import Language from "./Language.js";
 //Sorry boss, i need to do that
 export class BaseAgent extends Client {
     config;
@@ -46,7 +47,7 @@ export class BaseAgent extends Client {
         if (this.config.owoPrefix.length !== 0)
             this.prefixes.push(this.config.owoPrefix);
         this.once("ready", async () => {
-            logger.info("Logged in as " + this.user?.displayName);
+            logger.info(Language.__("message.loggedInAs", { username: this.user?.displayName || "" }));
             if (this.config.adminID)
                 this.RETAINED_USERS_IDS.push(this.config.adminID);
             loadSweeper(this);
@@ -55,14 +56,18 @@ export class BaseAgent extends Client {
             if (this.config.prefix)
                 this.commands = await loadCommands();
             this.activeChannel = this.channels.cache.get(this.config.channelID[0]);
-            logger.info(`Loaded ${this.commands.size} commands`);
-            logger.info(`Running on channel: ${this.activeChannel.name}`);
+            if (this.config.prefix)
+                logger.info(Language.__("message.loadedCommands", { size: `${this.commands.size}` }));
+            logger.info(Language.__("message.runningOnChannel", { chan: ` ${this.activeChannel.name}` }));
             if (this.config.channelID.length > 1)
-                logger.info(`Next channel change after: ${this.coutChannel} commands`);
+                logger.info(Language.__("message.nextChannelAfter", { len: `${this.coutChannel}` }));
             if (this.config.autoSleep)
-                logger.info(`Next sleep after: ${this.coutSleep} commands (Duration: ${timeHandler(0, this.sleepTime, true)})`);
+                logger.info(Language.__("message.nextSleepAfter", {
+                    len: `${this.coutSleep}`,
+                    dur: `${timeHandler(0, this.sleepTime, true)}`
+                }));
             if (this.config.autoReload)
-                logger.info(`Next config reload time: ${timeHandler(Date.now(), this.reloadTime, true)}`);
+                logger.info(Language.__("message.nextConfigReload", { len: `${timeHandler(Date.now(), this.reloadTime, true)}` }));
             this.main();
         });
         owoHandler(this);
@@ -71,7 +76,7 @@ export class BaseAgent extends Client {
     };
     checkAccount = (token) => {
         return new Promise((resolve, reject) => {
-            logger.info("Checking account...");
+            logger.info(Language.__("message.checkingAccount"));
             this.once("ready", () => {
                 resolve(this);
             });
@@ -121,11 +126,12 @@ export class BaseAgent extends Client {
             this.reloadTime = new Date().setUTCHours(24, ranInt(0, 30), ranInt(0, 59), ranInt(0, 1000));
             [this.gem1, this.gem2, this.gem3] = Array(3).fill(undefined);
             this.config = structuredClone(this.cache);
-            logger.info(`Config Reloaded, Next config reload time: ${timeHandler(Date.now(), this.reloadTime, true)}`);
+            logger.info(`${Language.__("message.configReloaded")} ${Language.__("message.nextConfigReload", { len: `${timeHandler(Date.now(), this.reloadTime, true)}` })}`);
             return true;
         }
         catch (error) {
-            logger.error(`Failed to reload config: ${error}`);
+            logger.info(Language.__("fail.configReload"));
+            logger.error(`${error}`);
             return false;
         }
     };
@@ -133,16 +139,19 @@ export class BaseAgent extends Client {
         this.activeChannel = this.channels.cache.get(this.config.channelID[ranInt(0, this.config.channelID.length)]);
         const random = ranInt(17, 51);
         this.coutChannel += random;
-        logger.info(`Switched to channel: ${this.activeChannel.name}`);
-        logger.info(`Next channel change after: ${random} commands`);
+        logger.info(Language.__("message.switchedChannel", { len: `${this.activeChannel.name}` }));
+        logger.info(Language.__("message.nextChannelAfter", { len: `${this.coutChannel}` }));
     };
     aSleep = async () => {
-        logger.info("Sleeping for: " + timeHandler(0, this.sleepTime, true));
+        logger.info(Language.__("message.sleepingFor", { len: `${timeHandler(0, this.sleepTime, true)}` }));
         await this.sleep(this.sleepTime);
         const nextShift = ranInt(38, 92);
         this.coutSleep += nextShift;
         this.sleepTime = mapInt(nextShift, 38, 92, 150_000, 1_000_000);
-        logger.info(`Next sleep after: ${nextShift} commands (Duration: ${timeHandler(0, this.sleepTime, true)})`);
+        logger.info(Language.__("message.nextSleepAfter", {
+            len: `${this.coutSleep}`,
+            dur: `${timeHandler(0, this.sleepTime, true)}`
+        }));
     };
     ////////////////////////// QUEST COMMANDS SESSION //////////////////////////
     aGamble = () => {

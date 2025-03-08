@@ -25,7 +25,8 @@ export const defaultConfig = {
     autoReload: true,
     autoResume: true,
     showRPC: true,
-    owoPrefix: ""
+    owoPrefix: "",
+    huntBattleSameTime: false
 };
 // export interface Configuration {
 //     tag: string

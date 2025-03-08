@@ -1,3 +1,4 @@
+import Language from "../structures/Language.js";
 import { logger } from "../utils/logger.js";
 export const commandHandler = async (agent) => {
     agent.on("messageCreate", async (message) => {
@@ -6,7 +7,7 @@ export const commandHandler = async (agent) => {
         if (message.author.id != agent.config.adminID &&
             message.author.id != message.client.user?.id)
             return;
-        logger.debug(message.author.username + " executed a command: " + message.content);
+        logger.debug(Language.__("message.usedCommand", { user: message.author.username, command: message.content }));
         const args = message.content
             .slice(agent.config.prefix.length)
             .trim()
@@ -18,7 +19,7 @@ export const commandHandler = async (agent) => {
             command.execute(agent, message, ...args);
         }
         catch (error) {
-            logger.error("Error executing command: " + command);
+            logger.error(Language.__("fail.executeCommand") + ": " + command);
             logger.error(error);
         }
     });

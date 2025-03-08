@@ -1,4 +1,5 @@
 import { BaseAgent } from "../structures/BaseAgent.js";
+import Language from "../structures/Language.js";
 import { logger } from "../utils/logger.js";
 
 export const commandHandler = async (agent: BaseAgent) => {
@@ -11,7 +12,7 @@ export const commandHandler = async (agent: BaseAgent) => {
         )
             return;
 
-        logger.debug(message.author.username + " executed a command: " + message.content);  
+        logger.debug(Language.__("message.usedCommand",{user: message.author.username,command:message.content}));  
 
         const args = message.content
             .slice(agent.config.prefix.length)
@@ -22,7 +23,7 @@ export const commandHandler = async (agent: BaseAgent) => {
         try {
             command.execute(agent, message, ...args);
         } catch (error) {
-            logger.error("Error executing command: " + command);
+            logger.error(Language.__("fail.executeCommand") + ": " + command);
             logger.error(error as Error);
         }
     });

@@ -3,6 +3,7 @@ import { exec, spawn } from "child_process";
 import { logger } from "../utils/logger.js";
 import notifier from "node-notifier";
 import path from "path";
+import Language from "./Language.js";
 const createMusic = (musicPath) => {
     let command = "";
     switch (process.platform) {
@@ -18,15 +19,16 @@ const createMusic = (musicPath) => {
         case "android":
             command = `termux-media-player play`;
             break;
-        default: throw new Error("Unsupported Platform");
+        default:
+            throw new Error(Language.__("fail.unsupportedPlatform"));
     }
     command += ` "${musicPath}"`;
     return spawn(command, { shell: true, detached: true }).unref();
 };
 const createPopUp = async (timestamp = Date.now(), url) => {
     return notifier.notify({
-        title: "CAPTCHA DETECTED!",
-        message: "Please solve the captcha before: " + new Date(timestamp + 10 * 60 * 1000).toLocaleString(),
+        title: Language.__("message.captchaFound"),
+        message: Language.__("message.solveBefore", { date: new Date(timestamp + 10 * 60 * 1000).toLocaleString() }),
         icon: path.resolve("doc/B2KI.png"),
         wait: true,
         ...(() => {
@@ -35,11 +37,11 @@ const createPopUp = async (timestamp = Date.now(), url) => {
                     return {
                         appID: "[B2KI] Advanced Discord OwO Tool Farm",
                         id: 1266,
-                        sound: "Notification.Looping.Call",
+                        sound: "Notification.Looping.Call"
                     };
                 case "darwin":
                     return {
-                        sound: true,
+                        sound: true
                     };
                 default:
                     return {};
@@ -47,7 +49,7 @@ const createPopUp = async (timestamp = Date.now(), url) => {
         })()
     }, (err, response, metadata) => {
         if (err) {
-            logger.error("Error showing popup notification");
+            logger.error(Language.__("fail.showPopup"));
             logger.error(err);
         }
         if (response != "dismissed" && response != "timeout")
@@ -67,117 +69,145 @@ export class Notifier {
         this.config = config;
         this.status = solved;
         this.attachmentUrl = message.attachments.first()?.url;
-        this.content = `${config.adminID ? `<@${config.adminID}>` : ""} Captcha Found in Channel: ${message.channel.toString()}`;
+        this.content = `${config.adminID ? `<@${config.adminID}>` : ""} ${Language.__("message.captchaFoundChannel", {
+            channel: `${message.channel.toString()}`
+        })}`;
     }
     playSound = async () => {
         if (!this.config.musicPath)
-            return logger.debug("Music path not found, skipping sound notification");
+            return logger.debug(Language.__("skip.noMusicPath"));
         try {
             createMusic(this.config.musicPath);
         }
         catch (error) {
-            logger.error("Error playing sound notification");
+            logger.error(Language.__("fail.playingMusic"));
             logger.error(error);
         }
     };
     sendWebhook = async () => {
         if (!this.config.webhookURL)
-            return logger.debug("Webhook URL not found, skipping webhook notification");
+            return logger.debug(Language.__("skip.noWebhook"));
         try {
             const webhook = new WebhookClient({ url: this.config.webhookURL });
             const embed = new MessageEmbed()
-                .setTitle("CAPTCHA DETECTED!")
+                .setTitle(Language.__("message.captchaFound"))
                 .setURL(this.message.url)
-                .setDescription("**Status**: " + (this.status ? "✅ **SOLVED**" : "⚠ ⚠ **UNSOLVED** ⚠ ⚠"))
+                .setDescription(Language.__("message.status", {
+                status: this.status ? Language.__("message.solved") : Language.__("message.unsolved")
+            }))
                 .addFields([
-                { name: "Captcha type: ", value: this.attachmentUrl ? `[Image Captcha](${this.message.url})` : "[Link Captcha](https://owobot.com/captcha)" }
+                {
+                    name: Language.__("message.captchaType"),
+                    value: this.attachmentUrl
+                        ? `[${Language.__("message.imageCaptcha")}](${this.message.url})`
+                        : `[${Language.__("message.linkCaptcha")}](https://owobot.com/captcha)`,
+                    inline: true
+                }
             ])
                 .setColor(this.status ? "GREEN" : "RED")
-                .setFooter({ text: "Copyright B2KI ADOS © since 2022", iconURL: this.message.guild?.iconURL({ format: "png" }) ?? "https://i.imgur.com/EqChQK1.png" })
+                .setFooter({
+                text: Language.__("copyright"),
+                iconURL: this.message.guild?.iconURL({ format: "png" }) ?? "https://i.imgur.com/EqChQK1.png"
+            })
                 .setTimestamp();
             if (this.attachmentUrl)
                 embed.setImage(this.attachmentUrl);
             if (!this.status)
-                embed.addFields({ name: "Please solve the captcha before: ", value: this.unixTime });
+                embed.addFields({ name: Language.__("message.solveBefore", { date: "" }), value: this.unixTime });
             webhook.send({
                 avatarURL: this.message.client.user?.avatarURL({ dynamic: true }) ?? "https://i.imgur.com/9wrvM38.png",
                 username: "Captcha The Detective",
-                content: (this.config.adminID ? `<@${this.config.adminID}>` : "" + this.content),
+                content: this.config.adminID ? `<@${this.config.adminID}>` : "" + this.content,
                 embeds: embed ? [embed] : embed
             });
         }
         catch (error) {
-            logger.error("Error sending webhook notification");
+            logger.error(Language.__("fail.sendWebhook"));
             logger.error(error);
         }
     };
     sendDM = async () => {
         if (!this.config.adminID)
-            return logger.debug("Admin ID not found, skipping DM notification");
+            return logger.debug(Language.__("skip.noAdmin"));
         const admin = this.message.client.users.cache.get(this.config.adminID);
         if (!admin)
-            return logger.debug("Admin not found, skipping DM notification");
+            return logger.debug(Language.__("skip.noAdmin"));
         try {
             if (!admin.dmChannel)
                 await admin.createDM();
             await admin.send({
-                content: (this.content + "\n**Status**: " + (this.status ? "✅ **SOLVED**" : "⚠ ⚠ **UNSOLVED** ⚠ ⚠")),
+                content: this.content +
+                    "\n" +
+                    Language.__("message.status", {
+                        status: this.status ? Language.__("message.solved") : Language.__("message.unsolved")
+                    }),
                 files: this.attachmentUrl ? [this.attachmentUrl] : []
             });
         }
         catch (error) {
-            logger.error("Error sending DM notification");
+            logger.error(Language.__("fail.sendDM"));
             logger.error(error);
         }
     };
     callDM = async () => {
         if (!this.config.adminID)
-            return logger.debug("Admin ID not found, skipping call notification");
+            return logger.debug("skip.noAdmin");
         const admin = this.message.client.users.cache.get(this.config.adminID);
         if (!admin)
-            return logger.debug("Admin not found, skipping DM notification");
+            return logger.debug("skip.noAdmin");
         try {
             const DM = await admin.createDM();
-            await this.message.client.voice.joinChannel(DM, {
+            await this.message.client.voice
+                .joinChannel(DM, {
                 selfVideo: false,
                 selfDeaf: false,
-                selfMute: true,
-            }).then(connection => setTimeout(() => connection.disconnect(), 60000));
+                selfMute: true
+            })
+                .then((connection) => setTimeout(() => connection.disconnect(), 60000));
             await DM.ring();
         }
         catch (error) {
-            logger.error("Error calling user");
+            logger.error(Language.__("fail.callUser"));
             logger.error(error);
         }
     };
     popUp = async () => {
         try {
-            const message = "CAPTCHA DETECTED! Please solve the captcha before: " + new Date(this.message.createdTimestamp + 10 * 60 * 1000).toLocaleString();
+            const message = `${Language.__("message.captchaFound")} ${Language.__("message.solveBefore", {
+                date: new Date(this.message.createdTimestamp + 10 * 60 * 1000).toLocaleString()
+            })}`;
             if (process.platform == "android") {
                 return spawn("termux-notification", [
-                    "--title", "CAPTCHA DETECTED!",
-                    "--content", message,
-                    "--priority", "high",
-                    "--sound", "--ongoing",
-                    "--vibrate", "1000,1000,1000,1000,1000",
-                    "--id", "1266",
-                    "--action", `termux-open-url ${this.message.url}`,
+                    "--title",
+                    Language.__("message.captchaFound"),
+                    "--content",
+                    message,
+                    "--priority",
+                    "high",
+                    "--sound",
+                    "--ongoing",
+                    "--vibrate",
+                    "1000,1000,1000,1000,1000",
+                    "--id",
+                    "1266",
+                    "--action",
+                    `termux-open-url ${this.message.url}`
                 ]).unref();
             }
             else if (process.platform == "win32" || process.platform == "darwin" || process.platform == "linux") {
                 return createPopUp(this.message.createdTimestamp, this.message.url.replace("https", "discord"));
             }
             else
-                throw new Error("Unsupported Platform");
+                throw new Error(Language.__("fail.unsupportedPlatform"));
         }
         catch (error) {
-            logger.error("Error showing popup notification");
+            logger.error(Language.__("fail.showPopup"));
             logger.error(error);
         }
     };
     notify = async () => {
         const wayNotify = this.config.wayNotify;
-        logger.debug("Enabled notifications: " + wayNotify.join(", "));
+        logger.debug(Language.__("message.enabledNotifications", { nof: wayNotify.join(", ") }));
         const notifier = [
             {
                 condition: "music",

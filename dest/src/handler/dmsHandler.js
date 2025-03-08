@@ -1,3 +1,4 @@
+import Language from "../structures/Language.js";
 export const dmsHandler = async (agent) => {
     agent.on("messageCreate", async (message) => {
         if (!agent.captchaDetected || message.channel.type != "DM")
@@ -8,7 +9,7 @@ export const dmsHandler = async (agent) => {
             const owo = message.client.users.cache.get(agent.owoID);
             const owoDM = await owo?.createDM();
             if (!owo || !owoDM) {
-                message.reply("Failed to Reach OwO DM Channel");
+                message.reply(Language.__("fail.reachOwODmChannel"));
                 return;
             }
             await agent.send(message.content, { withPrefix: false, channel: owoDM });

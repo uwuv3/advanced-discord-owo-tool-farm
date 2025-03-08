@@ -254,6 +254,8 @@ For more information: [SECURITY.md](https://github.com/Kyou-Izumi/advanced-disco
 
 ✔ Automatic claim/handle quest and checklog [working on this]
 
+✔ Application with language support
+
 __-- Coming soon list --__
 
 ⬜ Selfbot captcha solving API (No longer 3rd party)
@@ -264,7 +266,6 @@ __-- Coming soon list --__
 
 ⬜ Application with UI support
 
-⬜ Application with language support
 
 ## Sparkling Soul
 

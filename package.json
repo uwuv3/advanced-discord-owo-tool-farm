@@ -1,6 +1,6 @@
 {
   "name": "advanced-discord-owo-tool-farm",
-  "version": "3.2.8",
+  "version": "3.2.9",
   "description": "Community Discord OwO Selfbot made in Vietnam [Copyright © Kyou-Izumi 2024]",
   "main": "dest/index.js",
   "type": "module",
@@ -16,8 +16,8 @@
     "start": "node dest/index.js",
     "build": "tsc && chmod u+x obfuscate.sh && ./obfuscate.sh && node ./src/security/encrypt.js",
     "dev": "npm run build && npm start",
-    "dev:test": "tsc && node dest/test/index.js",
-    "dev:start": "tsc && npm start -- -d"
+    "dev:test": "tsc && node dest/test/index.js --debug true",
+    "dev:start": "tsc && npm start"
   },
   "repository": {
     "type": "git",
@@ -44,13 +44,14 @@
     "2captcha": "^3.0.5-2",
     "@inquirer/core": "^9.2.1",
     "@inquirer/prompts": "^7.1.0",
+    "@types/i18n": "^0.13.12",
     "adm-zip": "^0.5.16",
     "axios": "^1.7.7",
     "axios-cookiejar-support": "^5.0.2",
-    "brain.js": "2.0.0-beta.24",
     "chalk": "^5.3.0",
     "commander": "^12.1.0",
     "discord.js-selfbot-v13": "^3.5.1",
+    "i18n": "^0.15.1",
     "node-notifier": "^10.0.1",
     "sharp": "^0.33.5",
     "tough-cookie": "^5.0.0",
